@@ -6,7 +6,6 @@ import javafx.stage.Stage;
 
 public class Draughts extends Application {
 
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         //Create new board for draughts
