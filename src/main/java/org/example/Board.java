@@ -1,35 +1,40 @@
 package org.example;
 
+import javafx.geometry.Pos;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class Board {
-    private GridPane gridPane;
-    public Board(){
-        // Create new GridPane
-        gridPane = new GridPane();
+public class Board extends GridPane{
+
+    /**
+     * Gridpane board for play
+     */
+    public Board(int numberOfFields){
+        int boardSize = 600;
+        int count = 0;
+
+        // side of rectangle
+        int s = boardSize / numberOfFields;
 
         // Create 64 rectangles and add to gridPane
-        int count = 0;
-        // side of rectangle
-        double s = 100;
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < numberOfFields; i++) {
             count++;
-            for (int j = 0; j < 8; j++) {
-                Rectangle r = new Rectangle(s, s, s, s);
+            for (int j = 0; j < numberOfFields; j++) {
+                Rectangle rectangle = new Rectangle(s, s, s, s);
                 if (count % 2 == 0)
-                    r.setFill(Color.WHITE);
-                gridPane.add(r, j, i);
+                    rectangle.setFill(Color.WHITE);
+                this.add(rectangle, j, i);
                 count++;
             }
         }
+        setAlignment(Pos.CENTER);
     }
-    /**
-     *
-     * @return GridPane
-     */
-    public GridPane getBoard() {
-        return gridPane;
-    }
+
+//   ? DO KONSULTACJI  ?
+//    public GridPane getBoard() {
+//        return this;
+//    }
 }
