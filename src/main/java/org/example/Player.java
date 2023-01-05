@@ -21,10 +21,10 @@ public class Player {
         Color color;
         this.firstPlayer = firstPlayer;
         if(firstPlayer){
-            color = Color.WHEAT;
+            color = Color.WHITE;
         }
         else {
-            color = Color.BROWN;
+            color = Color.BLACK;
         }
 
         initPawns();

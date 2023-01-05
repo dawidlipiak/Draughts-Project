@@ -13,11 +13,9 @@ public class ApplicationFrame extends Pane {
 
     /**
      * Constructor of the frame with added layouts needed
-     * @param hbox contains buttons for changing draughts version
      * @param gridPane contains board for playing
      */
-    ApplicationFrame(HBox hbox, GridPane gridPane) {
-        gridPane.relocate(0, 35);
-        getChildren().addAll(gridPane,hbox);
+    ApplicationFrame(GridPane gridPane) {
+        getChildren().addAll(gridPane);
     }
 }

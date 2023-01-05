@@ -30,7 +30,10 @@ public class Board extends GridPane{
             for (int j = 0; j < numberOfFields; j++) {
                 Rectangle rectangle = new Rectangle(fieldLength, fieldLength, fieldLength, fieldLength);
                 if (count % 2 == 0) {
-                    rectangle.setFill(Color.WHITE);
+                    rectangle.setFill(Color.MOCCASIN);
+                }
+                else {
+                    rectangle.setFill(Color.PERU);
                 }
                 add(rectangle, j, i);
                 count++;
@@ -48,10 +51,10 @@ public class Board extends GridPane{
         for(int i = 0; i < getRowCount(); i++){
             for(int j = 0; j < (getColumnCount()/2); j++){
                 if( i % 2 == 0){
-                    positions[i][j] = new Point2D((-0.5*fieldLength) + j*2*fieldLength - offset,35 + (-0.5*fieldLength)+ i*2*(0.5*fieldLength) - offset);
+                    positions[i][j] = new Point2D((-0.5*fieldLength) + j*2*fieldLength - offset,(-0.5*fieldLength)+ i*2*(0.5*fieldLength) - offset);
                 }
                 else {
-                    positions[i][j] = new Point2D((0.5*fieldLength) + j*2*fieldLength - offset,35 + (-0.5*fieldLength)+ i*2*(0.5*fieldLength) - offset);
+                    positions[i][j] = new Point2D((0.5*fieldLength) + j*2*fieldLength - offset,(-0.5*fieldLength)+ i*2*(0.5*fieldLength) - offset);
                 }
             }
         }
