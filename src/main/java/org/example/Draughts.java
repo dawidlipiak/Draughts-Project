@@ -3,10 +3,16 @@ package org.example;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.control.Label;
 import javafx.stage.WindowEvent;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -17,41 +23,49 @@ public class Draughts extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        try {
-            Socket socket = new Socket("localhost", 4444);
-
-            // Output from the server
-            BufferedReader out = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // Input for the server
-            PrintWriter serverInput = new PrintWriter(socket.getOutputStream());
+//        try {
+//            Socket socket = new Socket("localhost", 4444);
+//
+//            // Output from the server
+//            BufferedReader out = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//
+//            // Input for the server
+//            PrintWriter serverInput = new PrintWriter(socket.getOutputStream());
 
             //Console console = System.console();
 
-            ApplicationFrame frame;
-
             int boardsize = 600;
 
-            // Pown circle radius
-            double radius = 30;
+            /* Create the label that will show messages. */
+            Label message = new Label("Click \"New Game\" to begin.");
+            message.setTextFill( Color.BLACK );
+            message.setFont(Font.font(null, FontWeight.BOLD, 25));
+
+            /* Create the buttons and the board.  The buttons MUST be
+             * created first, since they are used in the CheckerBoard
+             * constructor! */
+            Button newGameButton = new Button("Nowa gra");
+            Button resignButton = new Button("Poddaj się");
+            newGameButton.setFont(Font.font(15));
+            resignButton.setFont(Font.font(15));
+
+            Player player = new Player(12, true);
+            player.setPositions();
 
             //Create new board for draughts
-            Board board = new Board(8, boardsize);
-            board.setPositionsToMoveOn(radius);
+            Board board = new Board(8, boardsize, player.getPawnBoard());
 
-            // Create application frame
-            frame = new ApplicationFrame(board);
+            Pane frame = new Pane();
 
-            Player player1 = new Player(12, radius, true);
-            Player player2 = new Player(12, radius, false);
+            board.relocate(0,75);
+            message.relocate(5,15 );
+            newGameButton.relocate(400, 20);
+            resignButton.relocate(500,20);
 
-            // Set start positions for pawns for a player
-            player1.setPlayersPawnsStartPosition(board, frame);
-            player2.setPlayersPawnsStartPosition(board, frame);
+            frame.getChildren().addAll(board,message,newGameButton, resignButton);
 
             // Create a scene and place it in the stage
-            Scene scene = new Scene(frame, boardsize, boardsize);
-
+            Scene scene = new Scene(frame,boardsize, boardsize+75);
             // Set non resizable window
             stage.setResizable(false);
             stage.setTitle("Warcaby");
@@ -64,9 +78,9 @@ public class Draughts extends Application {
 
 //            String serverOutput  = out.readLine();
 //            if(serverOutput.equals("1")) {
-                versionWindow.show();
-                versionWindow.choosingVersion();
-                serverInput.println(versionWindow.getChosenVersion());
+            versionWindow.show();
+            versionWindow.choosingVersion();
+            //serverInput.println(versionWindow.getChosenVersion());
 //            }
 
             // TU MIAŁO BYĆ OTWIERANIE OKNA DLA DRUGIEGO GRACZA BEZ WYBORU WERSJI
@@ -87,10 +101,10 @@ public class Draughts extends Application {
 //                        break;
 //                }
 //            }
-
-        }
-        catch (IOException ex){
-
-        }
+//
+//        }
+//        catch (IOException ex){
+//
+//        }
     }
 }

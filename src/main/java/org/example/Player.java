@@ -7,64 +7,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    /** List of pawns for a certain player */
-    private List<Pawn> pawns;
+    private final Pawn [][] pawnBoard;
+    private final int nrOfFields;
 
     /** Is the player the first player */
     private final boolean firstPlayer;
 
     /**
      * Constructor of a player that creates pawns for him
-     * @param nrOfPawns number of pawns at the board
+     * @param nrOfFields number of pawns at the board
      */
-    public Player(int nrOfPawns, double radius, boolean firstPlayer){
-        Color color;
+    public Player(int nrOfFields, boolean firstPlayer){
+        pawnBoard = new Pawn[nrOfFields][nrOfFields];
+        this.nrOfFields = nrOfFields;
         this.firstPlayer = firstPlayer;
-        if(firstPlayer){
-            color = Color.WHITE;
-        }
-        else {
-            color = Color.BLACK;
-        }
-
-        initPawns();
-        for(int i = 0; i < nrOfPawns; i++){
-            Pawn pawn = new Pawn(color, radius);
-            pawns.add(pawn);
-        }
     }
-
-    /**
-     * Creating list of pawns
-     */
-    private void initPawns(){
-        pawns = new ArrayList<>();
-    }
-
-    /**
-     * Setting pawns position at the begging of the game regarding if that is the first player
-     * @param board Gridpane type board
-     * @param frame Pane layout for adding pawns to it
-     */
-    public void setPlayersPawnsStartPosition( Board board, ApplicationFrame frame) {
-        int counter = 0;
-        if(firstPlayer) {
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < board.getColumnCount()/2 ; j++) {
-                    pawns.get(counter).setPosition(board.getXPosition(i,j),board.getYPosition(i,j));
-                    frame.getChildren().add(pawns.get(counter));
-                    counter++;
+    void setPositions() {
+        for (int row = 0; row < nrOfFields; row++) {
+            for (int col = 0; col < nrOfFields; col++) {
+                if ( row % 2 == col % 2 ) {
+                    if (row < 3) {
+                        pawnBoard[row][col] = new Pawn(Color.BLACK);
+                    }
+                    else if (row > 4) {
+                        pawnBoard[row][col] = new Pawn(Color.WHITE);
+                    }
+                    else {
+                        pawnBoard[row][col] = new Pawn(Color.TRANSPARENT);
+                        pawnBoard[row][col].setState(PawnState.EMPTY);
+                    }
+                }
+                else {
+                    pawnBoard[row][col] = new Pawn(Color.TRANSPARENT);
+                    pawnBoard[row][col].setState(PawnState.EMPTY);
                 }
             }
         }
-        if(!firstPlayer){
-            for (int i = board.getRowCount()-3; i < board.getRowCount() ; i++) {
-                for (int j = 0; j < board.getColumnCount()/2 ; j++) {
-                    pawns.get(counter).setPosition(board.getXPosition(i,j),board.getYPosition(i,j));
-                    frame.getChildren().add(pawns.get(counter));
-                    counter++;
-                }
-            }
-        }
+    }
+    /**
+     * Return Pawn array
+     */
+    public Pawn [][] getPawnBoard() {
+        return pawnBoard;
     }
 }

@@ -2,81 +2,82 @@ package org.example;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
-public class Board extends GridPane{
-    /** Array of center points of every square field on board */
-    private final Point2D[][] positions;
-    /** Length of a single field side */
-    private final int fieldLength;
+import java.awt.*;
+
+public class Board extends Canvas {
+    private final Pawn [][] board;
+    private final int nrOfFields;
+    private final int boardSize;
+    private final int fieldSize;
 
     /**
      * Constructor of a play board for draughts
      * @param numberOfFields number of Fields in a row and column
      * @param boardSize size of a window
      */
-    public Board(int numberOfFields,int boardSize){
-        int count = 0;
-        positions = new Point2D[numberOfFields][numberOfFields/2];
+    public Board(int numberOfFields,int boardSize, Pawn [][] pawnBoard){
+        super(boardSize,boardSize);
+        this.boardSize = boardSize;
+        this.nrOfFields = numberOfFields;
+        this.fieldSize = boardSize/nrOfFields;
+        this.board = pawnBoard;
+        drawBoard();
+    }
 
-        // fieldLength of rectangle
-        fieldLength = boardSize / numberOfFields;
+    public void drawBoard() {
+        Pawn pawn;
+        GraphicsContext g = getGraphicsContext2D();
+        g.setFont(Font.font(40));
 
-        // Create 64 rectangles and add to gridPane
-        for (int i = 0; i < numberOfFields; i++) {
-            count++;
-            for (int j = 0; j < numberOfFields; j++) {
-                Rectangle rectangle = new Rectangle(fieldLength, fieldLength, fieldLength, fieldLength);
-                if (count % 2 == 0) {
-                    rectangle.setFill(Color.MOCCASIN);
+        /* Draw the squares of the checkerboard and the checkers. */
+        for (int row = 0; row < nrOfFields; row++) {
+            for (int col = 0; col < nrOfFields; col++) {
+                if ( row % 2 == col % 2 ) {
+                    g.setFill(Color.PERU);
                 }
                 else {
-                    rectangle.setFill(Color.PERU);
+                    g.setFill(Color.MOCCASIN);
                 }
-                add(rectangle, j, i);
-                count++;
+                g.fillRect(col*fieldSize,row*fieldSize, fieldSize, fieldSize);
+
+                pawn = board[row][col];
+
+                switch (pawn.getState()) {
+                    case NORMAL:
+                        if (pawn.getColor() == Color.WHITE) {
+                            g.setFill(Color.WHITE);
+                        } else {
+                            g.setFill(Color.BLACK);
+                        }
+                        g.fillOval(col * fieldSize + 7.5, row * fieldSize + 7.5, 60, 60);
+                        break;
+
+                    case KING:
+                        if (pawn.getColor() == Color.WHITE) {
+                            g.setFill(Color.WHITE);
+                        } else {
+                            g.setFill(Color.BLACK);
+                        }
+                        g.fillOval(col * fieldSize + 7.5, row * fieldSize + 7.5, 60, 60);
+                        g.setFill(Color.RED);
+                        g.fillText("K", 25+ col * fieldSize, 50 + row * fieldSize);
+                        break;
+                }
             }
         }
-        setAlignment(Pos.CENTER);
+    }
+    public Pawn [][] getBoard() {
+        return board;
     }
 
-    /**
-     * Function for setting points for pawns to move on
-     * @param radius of a pawn to calculate offset
-     */
-    public void setPositionsToMoveOn (double radius) {
-        double offset = (fieldLength-4*radius);
-        for(int i = 0; i < getRowCount(); i++){
-            for(int j = 0; j < (getColumnCount()/2); j++){
-                if( i % 2 == 0){
-                    positions[i][j] = new Point2D((-0.5*fieldLength) + j*2*fieldLength - offset,(-0.5*fieldLength)+ i*2*(0.5*fieldLength) - offset);
-                }
-                else {
-                    positions[i][j] = new Point2D((0.5*fieldLength) + j*2*fieldLength - offset,(-0.5*fieldLength)+ i*2*(0.5*fieldLength) - offset);
-                }
-            }
-        }
+    public int getNrOfFields() {
+        return nrOfFields;
     }
-
-    /**
-     * Function returning X position of fields' center position
-     * @param row of filed
-     * @param column of field
-     * @return point of center position for given row and column
-     */
-    public double getXPosition(int row, int column) {
-        return positions[row][column].getX();
-    }
-    /**
-     * Function returning Y position of fields' center position
-     * @param row of filed
-     * @param column of field
-     * @return point of center position for given row and column
-     */
-    public double getYPosition(int row, int column) {
-        return positions[row][column].getY();
-    }
-
 }
