@@ -10,9 +10,16 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
+/**
+ * The main class to start draughts.
+ */
 public class Draughts extends Application {
 
-
+        /**
+         * starting method
+          * @param stage stage for application
+         * @throws Exception
+         */
     @Override
     public void start(Stage stage) throws Exception {
 //        try {
@@ -24,37 +31,36 @@ public class Draughts extends Application {
 //            // Input for the server
 //            PrintWriter serverInput = new PrintWriter(socket.getOutputStream());
 
-            int boardsize = 600;
+            int boardSize = 600;
 
-            /* Create the label that will show messages. */
+            // Create the label that will show messages. Set font and color for text.
             Label message = new Label("Click \"New Game\" to begin.");
             message.setTextFill( Color.BLACK );
             message.setFont(Font.font(null, FontWeight.BOLD, 25));
 
-            /* Create the buttons and the board.  The buttons MUST be
-             * created first, since they are used in the CheckerBoard
-             * constructor! */
+            // Create the buttons to start new game and to surrender.
             Button newGameButton = new Button("Nowa gra");
             Button resignButton = new Button("Poddaj się");
             newGameButton.setFont(Font.font(15));
             resignButton.setFont(Font.font(15));
 
-
-            //Create new board for draughts
-            Game game = new Game(8, boardsize, true);
+            //Create new game.
+            Game game = new Game(8, boardSize, true);
             game.setOnMousePressed(game::mousePressed);
             Pane frame = new Pane();
 
+            //Set content of the Pane in accurate places.
             game.relocate(0,75);
             message.relocate(5,15 );
             newGameButton.relocate(400, 20);
             resignButton.relocate(500,20);
 
+            //Add content to the Pane
             frame.getChildren().addAll(game,message,newGameButton, resignButton);
 
-            // Create a scene and place it in the stage
-            Scene scene = new Scene(frame,boardsize, boardsize+75);
-            // Set non resizable window
+            // Create a scene
+            Scene scene = new Scene(frame,boardSize, boardSize+75);
+            // Set non-resizable window and title for window
             stage.setResizable(false);
             stage.setTitle("Warcaby");
 
@@ -63,9 +69,11 @@ public class Draughts extends Application {
 
             //Game game = new Game(board,player);
 
-            // MOŻLIWOŚĆ DODANIA STAGE'Y INNYCH WERSJI
+            //Able to add different versions of the game
             VersionChoice versionWindow = new VersionChoice(stage,stage,stage);
 
+
+            //DEVELOPMENT OF THE SERVER
 //            String serverOutput  = out.readLine();
 //            if(serverOutput.equals("1")) {
             versionWindow.show();

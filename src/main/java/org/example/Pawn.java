@@ -2,9 +2,8 @@ package org.example;
 import javafx.scene.paint.Color;
 
 /**
- * Class of a pawn
+ * Class of a pawn.
  */
-
 public class Pawn {
     private PawnState state;
     private final int row;
@@ -12,8 +11,10 @@ public class Pawn {
     Color color;
 
     /**
-     * Constructor for pawn that extends after Circle
-     * @param color of the pawn
+     * Constructor of a pawn.
+     * @param color of pawn
+     * @param row of the board in which there is a pawn
+     * @param col of the board in which there is a pawn
      */
     public Pawn(Color color, int row, int col) {
         state = PawnState.NORMAL;
@@ -22,6 +23,11 @@ public class Pawn {
         this.col = col;
     }
 
+    /**
+     * Method to set state of the pawn.
+     * If state is EMPTY set Color of the pawn to Transparent
+     * @param state state of the pawn
+     */
     public void setState(PawnState state) {
         this.state = state;
         if(state == PawnState.EMPTY){

@@ -6,19 +6,25 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+/**
+ * Class where creates draughts game.
+ */
 public class Game extends Canvas {
+    //table contains the pawns
     private Pawn [][] pawnsBoard;
     private final int nrOfFields;
     private final int boardSize;
     private final int fieldSize;
+    // player whose turn is currently continue
     private Player currentPlayer;
     private int selectedRow;
     private int selectedCol;
     private String message;
+    // table of legal moves
     Movement[] legalMoves;
     LegalMoves legalMovesObj;
     /**
-     * Constructor of a play board for draughts
+     * Constructor of game board for draughts
      * @param numberOfFields number of Fields in a row and column
      * @param boardSize size of a window
      */
@@ -35,12 +41,15 @@ public class Game extends Canvas {
         drawBoard();
     }
 
+    /**
+     * Method to draw a draughtboard and to create framing for pawns.
+     */
     public void drawBoard() {
         Pawn pawn;
         GraphicsContext g = getGraphicsContext2D();
         g.setFont(Font.font(40));
 
-        /* Draw the squares of the checkerboard and the checkers. */
+        // Draw the squares of the draughtboard and the pawns.
         for (int row = 0; row < nrOfFields; row++) {
             for (int col = 0; col < nrOfFields; col++) {
                 if ( row % 2 == col % 2 ) {
@@ -76,16 +85,16 @@ public class Game extends Canvas {
                 }
             }
         }
-        g.setStroke(Color.CYAN);
+        g.setStroke(Color.BROWN);
         g.setLineWidth(4);
         for (int i = 0; i < legalMoves.length; i++) {
             g.strokeRect( 2+legalMoves[i].getFromCol()*fieldSize, 2+legalMoves[i].getFromRow()*fieldSize, fieldSize-4, fieldSize-4);
         }
         if (selectedRow >= 0) {
-            g.setStroke(Color.YELLOW);
+            g.setStroke(Color.CHOCOLATE);
             g.setLineWidth(4);
             g.strokeRect(2 + selectedCol*fieldSize, 2 + selectedRow*fieldSize, fieldSize-4, fieldSize-4);
-            g.setStroke(Color.LIME);
+            g.setStroke(Color.DARKGREEN);
             g.setLineWidth(4);
             for (int i = 0; i < legalMoves.length; i++) {
                 if (legalMoves[i].getFromCol() == selectedCol && legalMoves[i].getFromRow() == selectedRow) {
@@ -94,6 +103,10 @@ public class Game extends Canvas {
             }
         }
     }
+
+    /**
+     * Method to set start positions of the pawns.
+     */
     private void setPositions() {
         for (int row = 0; row < nrOfFields; row++) {
             for (int col = 0; col < nrOfFields; col++) {
@@ -138,6 +151,11 @@ public class Game extends Canvas {
             }
         }
     }
+
+    /**
+     * Event handler for Mouse Pressed
+     * @param evt event
+     */
     public void mousePressed(MouseEvent evt) {
 //        if (gameInProgress == false)
 //            sendMessage("Click \"New Game\" to start a new game.");
@@ -148,12 +166,15 @@ public class Game extends Canvas {
                 playerTurn(row,col);
 //        }
     }
+
+    /**
+     * Method to hold turn of the game.
+     * @param row row
+     * @param col column
+     */
     void playerTurn(int row, int col) {
 
-            /* If the player clicked on one of the pieces that the player
-             can move, mark this row and col as selected and return.  (This
-             might change a previous selection.)  Reset the message, in
-             case it was previously displaying an error message. */
+        // If the player clicked on one of the pawns that the player can move, mark this row and col as selected and return.
         for( int i = 0; i < legalMoves.length; i++){
             if(legalMoves[i].moveCheckerFrom(row, col)){
                 selectedRow = row;
@@ -168,16 +189,13 @@ public class Game extends Canvas {
                 return;
             }
         }
-            /* If no piece has been selected to be moved, the user must first
-             select a piece.  Show an error message and return. */
+        // If no pawn has been selected to be moved, the user must first select a pawn.
         if (selectedRow < 0) {
             sendMessage("Naciśnij pionka którym chcesz ruszyć");
             return;
         }
 
-            /* If the user clicked on a square where the selected piece can be
-             legally moved, then make the move and return. */
-
+        //If the user clicked on a field where the selected pawn can be legally moved, then make the move and return.
         for (int i = 0; i < legalMoves.length; i++)
             if (legalMoves[i].moveCheckerFrom(selectedRow,selectedCol) && legalMoves[i].moveCheckerTo(row,col)) {
                 pawnsBoard = legalMoves[i].makeMove(pawnsBoard);
@@ -197,13 +215,15 @@ public class Game extends Canvas {
                 selectedRow = -1;
                 drawBoard();
             }
-            /* If we get to this point, there is a piece selected, and the square where
-             the user just clicked is not one where that piece can be legally moved.
-             Show an error message. */
+
         sendMessage("Naciśnij gdzie chcesz się ruszyć");
 
     }
 
+    /**
+     * Method to send a message.
+     * @param message
+     */
     public void sendMessage(String message) {
         this.message =  message;
         System.out.println(message);
@@ -214,7 +234,6 @@ public class Game extends Canvas {
     public Pawn [][] getPawnsBoard() {
         return pawnsBoard;
     }
-
     public int getNrOfFields() {
         return nrOfFields;
     }

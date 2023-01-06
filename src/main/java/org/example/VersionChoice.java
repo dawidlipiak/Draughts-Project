@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
+/**
+ * Class to choice the version of the game
+ */
 public class VersionChoice {
     private final Stage stage, stageItalian, stageGerman, stageSpanish;
     private String chosenVersion;
@@ -43,7 +46,7 @@ public class VersionChoice {
     }
 
     /**
-     * Function that shows window
+     * Function to show the window
      */
     public void show(){
         Text text = new Text("Wybierz wersje gry");
@@ -58,7 +61,7 @@ public class VersionChoice {
     }
 
     /**
-     * Function setting version after clicking the button
+     * Function to set version after clicking the button
      */
     public void choosingVersion() {
         EventHandler<ActionEvent> buttonEventHandler = new EventHandler<ActionEvent>() {
@@ -86,7 +89,7 @@ public class VersionChoice {
     }
 
     /**
-     * Function showing stage with picked version and hiding previous window
+     * Function to show stage with picked version and hide previous window
      * @param version
      * @param selectedStage
      */
@@ -97,7 +100,7 @@ public class VersionChoice {
     }
 
     /**
-     * Funtion returning chosen version of the game
+     * Function to return chosen version of the game
      * @return chosen version of the game
      */
     public String getChosenVersion(){

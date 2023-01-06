@@ -4,11 +4,26 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
+/**
+ * Class with board of legal moves for the player.
+ */
 public class LegalMoves {
     private final int nrOfFileds;
+
+    /**
+     * Constructor of Legal Moves class.
+     * @param nrOfFileds number of Fields in a row and a column
+     */
     public LegalMoves(int nrOfFileds){
         this.nrOfFileds = nrOfFileds;
     }
+
+    /**
+     * Method to get legal moves for the player.
+     * @param player player
+     * @param pawnsBoard array of pawns
+     * @return Array of legal moves
+     */
     public Movement [] getLegalMoves(Player player, Pawn [][] pawnsBoard) {
         ArrayList<Movement> moves = new ArrayList<Movement>();
 
@@ -59,6 +74,14 @@ public class LegalMoves {
         }
     }
 
+    /**
+     * Method to get Array of fields from where player can jump.
+     * @param row row
+     * @param col column
+     * @param player player
+     * @param pawnsBoard array of pawns
+     * @return array of jumps
+     */
     public Movement [] getLegalJumpsFrom (int row, int col, Player player, Pawn[][] pawnsBoard) {
         ArrayList<Movement> jumps = new ArrayList<>();
         if (pawnsBoard[row][col].getColor() == player.getColor()) {
@@ -85,35 +108,57 @@ public class LegalMoves {
         }
     }
 
+    /**
+     *  Method to affirm if the jump is legal. Return true if is, return false if is not.
+     * @param player player
+     * @param pawnsBoard array of pawns
+     * @param fromRow row from where we jump
+     * @param fromCol column from where we jump
+     * @param betweenRow row of the field between where we jump from and to
+     * @param betweenCol column of the field between where we jump from and to
+     * @param toRow row where we jump to
+     * @param toCol column where we jump to
+     * @return true or false
+     */
     private boolean legalJump(Player player, Pawn [][] pawnsBoard, int fromRow, int fromCol, int betweenRow, int betweenCol, int toRow, int toCol) {
         if (toRow < 0 || toRow >= nrOfFileds || toCol < 0 || toCol >= nrOfFileds ) {
             return false;  // (toRow,toCol) is off the board.
         }
 
         if (pawnsBoard[toRow][toCol].getState() != PawnState.EMPTY) {
-            return false;  // (toRow,toCol) already contains a piece.
+            return false;  // (toRow,toCol) already contains a pawn.
         }
 
         if (player.isFirstPlayer()) {
             if (pawnsBoard[fromRow][fromCol].getColor() == Color.WHITE && toRow > fromRow) {
-                return false;  // Regular white piece can only move up.
+                return false;  // Regular white pawn can only move up.
             }
             if (pawnsBoard[betweenRow][betweenCol].getColor() != Color.BLACK) {
-                return false;  // There is no black piece to jump.
+                return false;  // There is no black pawn to jump.
             }
             return true;  // The jump is legal.
         }
         else {
             if (pawnsBoard[fromRow][fromCol].getColor() == Color.BLACK && toRow < fromRow) {
-                return false;  // Regular white piece can only move down.
+                return false;  // Regular black pawn can only move down.
             }
             if (pawnsBoard[betweenRow][betweenCol].getColor() != Color.WHITE) {
-                return false;  // There is no black piece to jump.
+                return false;  // There is no white pawn to jump.
             }
             return true;  // The jump is legal.
         }
     }
 
+    /**
+     *  Method to affirm if the move is legal. Return true if is, return false if is not.
+     * @param player player
+     * @param pawnsBoard array of pawns
+     * @param fromRow row from where we move
+     * @param fromCol column from where we move
+     * @param toRow row where we move to
+     * @param toCol column where we move to
+     * @return true or false
+     */
     private boolean legalMove(Player player, Pawn [][] pawnsBoard, int fromRow, int fromCol, int toRow, int toCol) {
         if (toRow < 0 || toRow >= nrOfFileds || toCol < 0 || toCol >= nrOfFileds) {
             return false;  // (toRow,toCol) is off the board.

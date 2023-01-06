@@ -3,6 +3,9 @@ package org.example;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Class where thread is created.
+ */
 public class DraughtsThread extends Thread{
     protected Socket socket;
     private final int clientId;;
