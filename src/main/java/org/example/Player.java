@@ -1,67 +1,53 @@
 package org.example;
 
 
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
-import javax.swing.plaf.PanelUI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
+    private final Pawn [][] pawnBoard;
+    private final int nrOfFields;
 
-    private int nrOfPawns;
-    private List<Pawn> pawns;
-
-    // Is the player the first player
-    private boolean firstplayer;
-
-    private void initPawns(){
-        pawns = new ArrayList<>();
-    }
+    /** Is the player the first player */
+    private final boolean firstPlayer;
 
     /**
      * Constructor of a player that creates pawns for him
-     * @param nrOfPawns number of pawns at the board
+     * @param nrOfFields number of pawns at the board
      */
-    public Player(int nrOfPawns){
-        Color color;
-        this.nrOfPawns = nrOfPawns;
-
-        if(firstplayer){
-            color = Color.WHEAT;
-        }
-        else {
-            color = Color.BROWN;
-        }
-
-        initPawns();
-        for(int i = 0; i < nrOfPawns; i++){
-            Pawn pawn = new Pawn(color);
-            pawns.add(pawn);
+    public Player(int nrOfFields, boolean firstPlayer){
+        pawnBoard = new Pawn[nrOfFields][nrOfFields];
+        this.nrOfFields = nrOfFields;
+        this.firstPlayer = firstPlayer;
+    }
+    void setPositions() {
+        for (int row = 0; row < nrOfFields; row++) {
+            for (int col = 0; col < nrOfFields; col++) {
+                if ( row % 2 == col % 2 ) {
+                    if (row < 3) {
+                        pawnBoard[row][col] = new Pawn(Color.BLACK);
+                    }
+                    else if (row > 4) {
+                        pawnBoard[row][col] = new Pawn(Color.WHITE);
+                    }
+                    else {
+                        pawnBoard[row][col] = new Pawn(Color.TRANSPARENT);
+                        pawnBoard[row][col].setState(PawnState.EMPTY);
+                    }
+                }
+                else {
+                    pawnBoard[row][col] = new Pawn(Color.TRANSPARENT);
+                    pawnBoard[row][col].setState(PawnState.EMPTY);
+                }
+            }
         }
     }
-
     /**
-     * Setting pawns position at the begging of the game regarding if that is the first player
-     * @param nrOfPawns number of pawns on the board
-     * @param board Gridpane type board
+     * Return Pawn array
      */
-    public void setPawnsStartPosition(int nrOfPawns, Board board) {
-        if(firstplayer) {
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < board.getColumnCount(); j++) {
-
-                }
-            }
-        }
-        if(!firstplayer){
-            for (int i = board.getRowCount()-2; i < board.getRowCount(); i++) {
-                for (int j = 0; j < board.getColumnCount(); j++) {
-
-                }
-            }
-        }
+    public Pawn [][] getPawnBoard() {
+        return pawnBoard;
     }
 }

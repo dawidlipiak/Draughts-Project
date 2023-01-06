@@ -1,69 +1,83 @@
 package org.example;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
-public class Board extends GridPane{
-    // Array of center points of every square field on board
-    private final Point2D[][] centerFieldPosition;
-    // Array of square fields
-    private final Rectangle[][] fields;
+import java.awt.*;
+
+public class Board extends Canvas {
+    private final Pawn [][] board;
+    private final int nrOfFields;
+    private final int boardSize;
+    private final int fieldSize;
 
     /**
      * Constructor of a play board for draughts
-     * @param numberOfFields number of row fields
+     * @param numberOfFields number of Fields in a row and column
      * @param boardSize size of a window
      */
-    public Board(int numberOfFields,int boardSize){
-        int count = 0;
-        fields = new Rectangle[numberOfFields][numberOfFields];
-        centerFieldPosition = new Point2D[numberOfFields][numberOfFields];
+    public Board(int numberOfFields,int boardSize, Pawn [][] pawnBoard){
+        super(boardSize,boardSize);
+        this.boardSize = boardSize;
+        this.nrOfFields = numberOfFields;
+        this.fieldSize = boardSize/nrOfFields;
+        this.board = pawnBoard;
+        drawBoard();
+    }
 
-        // side of rectangle
-        int side = boardSize / numberOfFields;
+    public void drawBoard() {
+        Pawn pawn;
+        GraphicsContext g = getGraphicsContext2D();
+        g.setFont(Font.font(40));
 
-        // Create 64 rectangles and add to gridPane
-        for (int i = 0; i < numberOfFields; i++) {
-            count++;
-            for (int j = 0; j < numberOfFields; j++) {
-                Rectangle rectangle = new Rectangle(side, side, side, side);
-                if (count % 2 == 0) {
-                    rectangle.setFill(Color.WHITE);
-                    fields [i][j] = rectangle;
-                    //System.out.println(fields[i][j]);
+        /* Draw the squares of the checkerboard and the checkers. */
+        for (int row = 0; row < nrOfFields; row++) {
+            for (int col = 0; col < nrOfFields; col++) {
+                if ( row % 2 == col % 2 ) {
+                    g.setFill(Color.PERU);
                 }
-                add(rectangle, j, i);
-                count++;
+                else {
+                    g.setFill(Color.MOCCASIN);
+                }
+                g.fillRect(col*fieldSize,row*fieldSize, fieldSize, fieldSize);
+
+                pawn = board[row][col];
+
+                switch (pawn.getState()) {
+                    case NORMAL:
+                        if (pawn.getColor() == Color.WHITE) {
+                            g.setFill(Color.WHITE);
+                        } else {
+                            g.setFill(Color.BLACK);
+                        }
+                        g.fillOval(col * fieldSize + 7.5, row * fieldSize + 7.5, 60, 60);
+                        break;
+
+                    case KING:
+                        if (pawn.getColor() == Color.WHITE) {
+                            g.setFill(Color.WHITE);
+                        } else {
+                            g.setFill(Color.BLACK);
+                        }
+                        g.fillOval(col * fieldSize + 7.5, row * fieldSize + 7.5, 60, 60);
+                        g.setFill(Color.RED);
+                        g.fillText("K", 25+ col * fieldSize, 50 + row * fieldSize);
+                        break;
+                }
             }
         }
-        setAlignment(Pos.CENTER);
-        //setCenterFieldPosition();
+    }
+    public Pawn [][] getBoard() {
+        return board;
     }
 
-    /**
-     * Function for setting center positions of fields
-     */
-    private void setCenterFieldPosition () {
-
-        for(int i = 0; i < getRowCount(); i++){
-            for(int j = 0; j < getColumnCount(); j++){
-                Point2D point = new Point2D(fields[i][j].getX(),fields[i][j].getY());
-                centerFieldPosition[i][j] = point;
-            }
-        }
-    }
-
-    /**
-     * Function returning points of fields' center positions
-     * @param row of filed
-     * @param column of field
-     * @return point of center position for given row and column
-     */
-    public Point2D getCenterFieldPosition (int row, int column) {
-        return centerFieldPosition[row][column];
+    public int getNrOfFields() {
+        return nrOfFields;
     }
 }

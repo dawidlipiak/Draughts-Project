@@ -1,29 +1,32 @@
 package org.example;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 
-public class Pawn extends Circle {
-    private double x;
-    private double y;
+/**
+ * Class of a pawn
+ */
 
+public class Pawn {
+    private PawnState state;
+    Color color;
+
+    /**
+     * Constructor for pawn that extends after Circle
+     * @param color of the pawn
+     */
     public Pawn(Color color) {
-        this.setFill(color);
+        state = PawnState.NORMAL;
+        this.color = color;
     }
 
-    public void setX(double x) {
-        this.x = x;
+    public void setState(PawnState state) {
+        this.state = state;
     }
 
-    public void setY(double y) {
-        this.y = y;
+    public PawnState getState(){
+        return state;
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
+    public Color getColor() {
+        return color;
     }
 }
