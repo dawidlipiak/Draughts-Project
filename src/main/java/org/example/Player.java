@@ -3,51 +3,46 @@ package org.example;
 
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Player {
-    private final Pawn [][] pawnBoard;
+    private final Pawn [][] playerPawns;
     private final int nrOfFields;
 
     /** Is the player the first player */
     private final boolean firstPlayer;
+    private Color color;
 
     /**
      * Constructor of a player that creates pawns for him
      * @param nrOfFields number of pawns at the board
      */
     public Player(int nrOfFields, boolean firstPlayer){
-        pawnBoard = new Pawn[nrOfFields][nrOfFields];
+        playerPawns = new Pawn[nrOfFields][nrOfFields];
         this.nrOfFields = nrOfFields;
         this.firstPlayer = firstPlayer;
+        setPlayerColor();
     }
-    void setPositions() {
-        for (int row = 0; row < nrOfFields; row++) {
-            for (int col = 0; col < nrOfFields; col++) {
-                if ( row % 2 == col % 2 ) {
-                    if (row < 3) {
-                        pawnBoard[row][col] = new Pawn(Color.BLACK);
-                    }
-                    else if (row > 4) {
-                        pawnBoard[row][col] = new Pawn(Color.WHITE);
-                    }
-                    else {
-                        pawnBoard[row][col] = new Pawn(Color.TRANSPARENT);
-                        pawnBoard[row][col].setState(PawnState.EMPTY);
-                    }
-                }
-                else {
-                    pawnBoard[row][col] = new Pawn(Color.TRANSPARENT);
-                    pawnBoard[row][col].setState(PawnState.EMPTY);
-                }
-            }
+
+    private void setPlayerColor(){
+        if(firstPlayer){
+            color = Color.WHITE;
+        }
+        else {
+            color = Color.BLACK;
         }
     }
-    /**
-     * Return Pawn array
-     */
-    public Pawn [][] getPawnBoard() {
-        return pawnBoard;
+    public void addPawns(Pawn pawn){
+        int row = pawn.getRow();
+        int col = pawn.getCol();
+        playerPawns[row][col] = pawn;
+    }
+    public Color getColor(){
+        return color;
+    }
+    public Pawn [][] getPlayerPawns() {
+        return playerPawns;
+    }
+
+    public boolean isFirstPlayer() {
+        return firstPlayer;
     }
 }

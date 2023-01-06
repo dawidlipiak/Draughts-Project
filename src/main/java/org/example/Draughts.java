@@ -1,22 +1,14 @@
 package org.example;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
-import javafx.stage.WindowEvent;
-
-import java.io.*;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class Draughts extends Application {
 
@@ -31,8 +23,6 @@ public class Draughts extends Application {
 //
 //            // Input for the server
 //            PrintWriter serverInput = new PrintWriter(socket.getOutputStream());
-
-            //Console console = System.console();
 
             int boardsize = 600;
 
@@ -49,20 +39,18 @@ public class Draughts extends Application {
             newGameButton.setFont(Font.font(15));
             resignButton.setFont(Font.font(15));
 
-            Player player = new Player(12, true);
-            player.setPositions();
 
             //Create new board for draughts
-            Board board = new Board(8, boardsize, player.getPawnBoard());
-
+            Game game = new Game(8, boardsize, true);
+            game.setOnMousePressed(game::mousePressed);
             Pane frame = new Pane();
 
-            board.relocate(0,75);
+            game.relocate(0,75);
             message.relocate(5,15 );
             newGameButton.relocate(400, 20);
             resignButton.relocate(500,20);
 
-            frame.getChildren().addAll(board,message,newGameButton, resignButton);
+            frame.getChildren().addAll(game,message,newGameButton, resignButton);
 
             // Create a scene and place it in the stage
             Scene scene = new Scene(frame,boardsize, boardsize+75);
@@ -73,6 +61,8 @@ public class Draughts extends Application {
             // Place in scene in the stage
             stage.setScene(scene);
 
+            //Game game = new Game(board,player);
+
             // MOŻLIWOŚĆ DODANIA STAGE'Y INNYCH WERSJI
             VersionChoice versionWindow = new VersionChoice(stage,stage,stage);
 
@@ -80,6 +70,7 @@ public class Draughts extends Application {
 //            if(serverOutput.equals("1")) {
             versionWindow.show();
             versionWindow.choosingVersion();
+
             //serverInput.println(versionWindow.getChosenVersion());
 //            }
 
