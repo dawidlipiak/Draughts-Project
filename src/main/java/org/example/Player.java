@@ -7,8 +7,6 @@ import javafx.scene.paint.Color;
  * Class to create player.
  */
 public class Player {
-    private final Pawn [][] playerPawns;
-    private final int nrOfFields;
 
     /** If player is first, firstPlayer is true, otherwise is false. */
     private final boolean firstPlayer;
@@ -20,10 +18,13 @@ public class Player {
      * @param firstPlayer true or false  depends on if the player is first
      */
     public Player(int nrOfFields, boolean firstPlayer){
-        playerPawns = new Pawn[nrOfFields][nrOfFields];
-        this.nrOfFields = nrOfFields;
-        this.firstPlayer = firstPlayer;
-        setPlayerColor();
+        if(nrOfFields > 0) {
+            this.firstPlayer = firstPlayer;
+            setPlayerColor();
+        }
+        else {
+            throw new IllegalArgumentException("Liczba pól musi być dodatnia");
+        }
     }
 
     /**
@@ -40,21 +41,17 @@ public class Player {
     }
 
     /**
-     * Method to add Pawns to Array with player Pawns
-     * @param pawn pawn
+     * Get color assigned to the player
+     * @return color of the player
      */
-    public void addPawns(Pawn pawn){
-        int row = pawn.getRow();
-        int col = pawn.getCol();
-        playerPawns[row][col] = pawn;
-    }
     public Color getColor(){
         return color;
     }
-    public Pawn [][] getPlayerPawns() {
-        return playerPawns;
-    }
 
+    /**
+     * get if player is a first player
+     * @return boolean value if the player is first player
+     */
     public boolean isFirstPlayer() {
         return firstPlayer;
     }

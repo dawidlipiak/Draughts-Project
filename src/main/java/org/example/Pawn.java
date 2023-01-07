@@ -2,25 +2,20 @@ package org.example;
 import javafx.scene.paint.Color;
 
 /**
- * Class of a pawn.
+ * Class of a pawn
  */
+
 public class Pawn {
     private PawnState state;
-    private final int row;
-    private final int col;
     Color color;
 
     /**
      * Constructor of a pawn.
      * @param color of pawn
-     * @param row of the board in which there is a pawn
-     * @param col of the board in which there is a pawn
      */
     public Pawn(Color color, int row, int col) {
         state = PawnState.NORMAL;
         this.color = color;
-        this.row = row;
-        this.col = col;
     }
 
     /**
@@ -35,18 +30,28 @@ public class Pawn {
         }
     }
 
+    /**
+     * Set color of the pawn
+     * @param color we are changing to
+     */
+    public void setColor(Color color){
+        this.color = color;
+    }
+
+    /**
+     * Get state of the pawn
+     * @return state
+     */
     public PawnState getState(){
         return state;
     }
 
+    /**
+     * Get color of the pawn
+     * @return color;
+     */
     public Color getColor() {
         return color;
     }
 
-    public int getRow() {
-        return row;
-    }
-    public int getCol() {
-        return col;
-    }
 }

@@ -46,7 +46,7 @@ public class VersionChoice {
     }
 
     /**
-     * Function to show the window
+     * Function to show window
      */
     public void show(){
         Text text = new Text("Wybierz wersje gry");
@@ -89,9 +89,9 @@ public class VersionChoice {
     }
 
     /**
-     * Function to show stage with picked version and hide previous window
-     * @param version
-     * @param selectedStage
+     * Function to show stage with picked version and hiding previous window
+     * @param version version of the game
+     * @param selectedStage proper stage
      */
     public void setVersion(String version, Stage selectedStage) {
         selectedStage.show();
@@ -100,7 +100,7 @@ public class VersionChoice {
     }
 
     /**
-     * Function to return chosen version of the game
+     * Funtion to return chosen version of the game
      * @return chosen version of the game
      */
     public String getChosenVersion(){
