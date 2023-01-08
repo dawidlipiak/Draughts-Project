@@ -67,10 +67,10 @@ public class Movement {
         pawnsBoard[toRow][toCol] = pawnsBoard[fromRow][fromCol];
         pawnsBoard[fromRow][fromCol] = tempPawn;
 
-        // The move is a jump so remove the jumped piece from the board.
         if (fromRow - toRow == 2 || fromRow - toRow == -2) {
-            int jumpRow = (fromRow + toRow) / 2;  // Row of the jumped piece.
-            int jumpCol = (fromCol + toCol) / 2;  // Column of the jumped piece.
+            // The move is a jump so remove the jumped pawn from the board.
+            int jumpRow = (fromRow + toRow) / 2;  // Row of the jumped pawn.
+            int jumpCol = (fromCol + toCol) / 2;  // Column of the jumped pawn.
             pawnsBoard[jumpRow][jumpCol].setState(PawnState.EMPTY);
         }
         if (toRow == 0 && pawnsBoard[toRow][toCol].getColor() == Color.WHITE){
