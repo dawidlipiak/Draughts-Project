@@ -10,23 +10,23 @@ public class Movement {
     private final int fromRow, fromCol;
     // Position to move the pawn to.
     private final int toRow, toCol;
+    // State if the move was a jump
+    boolean isJump = false;
 
-    // Constructor to set the values of the instance variables.
-    Movement(int row1, int col1, int row2, int col2) {
+    // Constructor.  Just set the values of the instance variables.
+    public Movement(int row1, int col1, int row2, int col2) {
         fromRow = row1;
         fromCol = col1;
 
         toRow = row2;
         toCol = col2;
     }
-
     /**
      * Method to test if this move is jump.
      */
     boolean isJump() {
-        return (fromRow - toRow >= 2 || fromRow - toRow <= -2);
+        return isJump;
     }
-
     /**
      * Method to check if the row and column is the actual from column and from row.
      * @param row row
@@ -67,33 +67,59 @@ public class Movement {
         pawnsBoard[toRow][toCol] = pawnsBoard[fromRow][fromCol];
         pawnsBoard[fromRow][fromCol] = tempPawn;
 
-        if (fromRow - toRow == 2 || fromRow - toRow == -2) {
-            // The move is a jump so remove the jumped pawn from the board.
-            int jumpRow = (fromRow + toRow) / 2;  // Row of the jumped pawn.
-            int jumpCol = (fromCol + toCol) / 2;  // Column of the jumped pawn.
-            pawnsBoard[jumpRow][jumpCol].setState(PawnState.EMPTY);
-        }
         if (toRow == 0 && pawnsBoard[toRow][toCol].getColor() == Color.WHITE){
             pawnsBoard[toRow][toCol].setState(PawnState.KING);
         }
         if (toRow == 7 && pawnsBoard[toRow][toCol].getColor() == Color.BLACK) {
             pawnsBoard[toRow][toCol].setState(PawnState.KING);
         }
+
+        int rowDirection = 1; // MOVE DOWN
+        int colDirection = 1; // MOVE RIGHT
+        if(fromRow > toRow){
+            rowDirection = -1;
+        }
+        if(fromCol > toCol){
+            colDirection = -1;
+        }
+        for(int i = 1; i < Math.abs(toRow-fromRow); i++){
+            if(pawnsBoard[fromRow+(i*rowDirection)][fromCol+(i*colDirection)].getState() != PawnState.EMPTY){
+                isJump = true;
+                pawnsBoard[fromRow+(i*rowDirection)][fromCol+(i*colDirection)].setState(PawnState.EMPTY);
+            }
+        }
+
         return pawnsBoard;
     }
 
+    /**
+     * Get the row of a position move is made to
+     * @return row
+     */
     public int getToRow(){
         return toRow;
     }
 
+    /**
+     * Get the col of a position move is made to
+     * @return col
+     */
     public int getToCol() {
         return toCol;
     }
 
+    /**
+     * Get the col of a position move is made from
+     * @return col
+     */
     public int getFromCol() {
         return fromCol;
     }
 
+    /**
+     * Get the row of a position move is made from
+     * @return row
+     */
     public int getFromRow() {
         return fromRow;
     }
