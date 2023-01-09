@@ -24,7 +24,7 @@ public class Movement {
     /**
      * Method to test if this move is jump.
      */
-    boolean isJump() {
+    public boolean isJump() {
         return isJump;
     }
     /**

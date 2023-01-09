@@ -2,7 +2,7 @@ import javafx.scene.paint.Color;
 import org.example.Player;
 import org.junit.Assert;
 
-public class PlayerTest {
+public class TestPlayer {
 
     @org.junit.Test
     public void testSetPlayerColor() {
