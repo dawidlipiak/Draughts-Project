@@ -31,7 +31,7 @@ public class Draughts extends Application {
                 int boardsize = 600;
 
                 // Create the label that will show messages. Set font and color for text.
-                Label messagePROMPT = new Label("Click \"New Game\" to begin.");
+                Label messagePROMPT = new Label("Naciśnij \"Nowa gra\" aby zacząć.");
                 messagePROMPT.setTextFill( Color.BLACK );
                 messagePROMPT.setFont(Font.font(null, FontWeight.BOLD, 25));
 
@@ -43,18 +43,19 @@ public class Draughts extends Application {
                 resignButton.setFont(Font.font(15));
 
                 //Create new game.
-                Game game = new Game(8, boardsize, messagePROMPT);
-                game.setOnMousePressed(game::mousePressed);
+                GameController gameController = new GameController(boardsize, messagePROMPT,stage);
+                gameController.setOnMousePressed(gameController::mousePressed);
+
                 Pane frame = new Pane();
 
                 //Set content of the Pane in accurate places.
-                game.relocate(0,75);
+                gameController.relocate(0,75);
                 messagePROMPT.relocate(5,15 );
                 newGameButton.relocate(400, 20);
                 resignButton.relocate(500,20);
 
                 //Add content to the Pane.
-                frame.getChildren().addAll(game,messagePROMPT,newGameButton, resignButton);
+                frame.getChildren().addAll(gameController,messagePROMPT,newGameButton, resignButton);
 
                 // Create a scene.
                 Scene scene = new Scene(frame,boardsize, boardsize+75);
@@ -65,5 +66,6 @@ public class Draughts extends Application {
                 // Place in scene in the stage.
                 stage.setScene(scene);
                 stage.show();
+
         }
 }

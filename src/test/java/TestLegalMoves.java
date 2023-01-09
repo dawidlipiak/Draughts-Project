@@ -162,9 +162,9 @@ public class TestLegalMoves {
         pawnsBoard[1][1].setColor(Color.WHITE);
         pawnsBoard[2][2].setState(PawnState.NORMAL);
         pawnsBoard[2][2].setColor(Color.BLACK);
-
+        legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
         // In Hiszpanska version we can not beat back, so we only have 2 moves forward.
-        if(Objects.equals(version, "Hiszpanska")) {
+        if(version == "Hiszpanska") {
             Assert.assertEquals(legalMoves.length, 2);
         }
 

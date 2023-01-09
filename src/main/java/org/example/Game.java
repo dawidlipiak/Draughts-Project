@@ -4,40 +4,28 @@ import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class to create the hole game.
  */
-public class Game extends Canvas  implements Runnable {
-    Thread thread;
-    Socket socket;
+public class Game {
+    Canvas gameView;
+    GameController gameController;
     private Pawn [][] pawnsBoard;
+    private Pawn [][] oldPawnsBoard;
     private final int nrOfFields;
     private final int fieldSize;
-    private Player realPlayer;
-    private int player;
-    public final static int PLAYER1 = 1;
-    public final static int PLAYER2 = 2;
-    private static int currentPlayer = PLAYER1;
+    private Player currentPlayer;
     private int selectedRow, selectedCol;
     private final Label messagePROMT;
-    Movement[] legalMoves;
-    List <Movement> doneMoves;
-    LegalMoves legalMovesObj;
-    private PrintWriter output;
-    private BufferedReader input;
+    private Movement[] legalMoves;
+    private List <Movement> doneMoves;
+    private LegalMoves legalMovesObj;
     public final static int ACTIVE = 0;
     public final static int NONACTIVE = 1;
     private static int turnMade = ACTIVE;
@@ -46,30 +34,23 @@ public class Game extends Canvas  implements Runnable {
      * @param numberOfFields number of Fields in a row and column
      * @param boardSize size of a window
      */
-    public Game(int numberOfFields, int boardSize, Label message){
-        super(boardSize,boardSize);
+    public Game(Canvas gameView,int numberOfFields, int boardSize, Label message, GameController gameController){
+        this.gameView = gameView;
         this.nrOfFields = numberOfFields;
         this.fieldSize = boardSize/nrOfFields;
         pawnsBoard = new Pawn[nrOfFields][nrOfFields];
+        oldPawnsBoard = new Pawn[nrOfFields][nrOfFields];
         this.messagePROMT = message;
-        thread = new Thread(this);
-
-        listenSocket();
-        receiveInitFromServer();
+        this.gameController = gameController;
         setPositions();
-
-        legalMovesObj = new LegalMoves(nrOfFields);
-        legalMoves = legalMovesObj.getLegalMoves(realPlayer, pawnsBoard);
-        drawBoard();
-        thread.start();
     }
 
     /**
      * Method to draw a draughtboard and to create framing for pawns.
      */
-    private void drawBoard() {
+    public void drawBoard() {
         Pawn pawn;
-        GraphicsContext g = getGraphicsContext2D();
+        GraphicsContext g = gameView.getGraphicsContext2D();
         g.setFont(Font.font(40));
 
         // Draw the squares of the draughtboard and the pawns.
@@ -132,7 +113,7 @@ public class Game extends Canvas  implements Runnable {
     /**
      * Method to set starting positions of the pawns.
      */
-    private void setPositions() {
+    public void setPositions() {
         for (int row = 0; row < nrOfFields; row++) {
             for (int col = 0; col < nrOfFields; col++) {
                 if ( row % 2 == col % 2 ) {
@@ -156,29 +137,11 @@ public class Game extends Canvas  implements Runnable {
     }
 
     /**
-     * Event handler for Mouse Pressed on the board.
-     * @param evt
-     */
-    public void mousePressed(MouseEvent evt) {
-//        if (gameInProgress == false)
-//            sendMessage("Click \"New Game\" to start a new game.");
-//        else {
-        int col = (int)((evt.getX()) / fieldSize);
-        int row = (int)((evt.getY()) / fieldSize);
-        if (col >= 0 && col < nrOfFields && row >= 0 && row < nrOfFields) {
-            if(turnMade == NONACTIVE) {
-                playerTurn(row, col);
-            }
-        }
-//        }
-    }
-
-    /**
      * Method to hold turn of the game.
      * @param row row
      * @param col column
      */
-    private void playerTurn(int row, int col) {
+    public void playerTurn(int row, int col) {
 
         // If the player clicked on one of the pawns that the player can move, mark this row and col as selected and return.
         if(legalMoves != null) {
@@ -200,11 +163,19 @@ public class Game extends Canvas  implements Runnable {
         //If the user clicked on a field where the selected pawn can be legally moved, then make the move and return.
         for (int i = 0; i < legalMoves.length; i++) {
             if (legalMoves[i].moveCheckerFrom(selectedRow, selectedCol) && legalMoves[i].moveCheckerTo(row, col)) {
+                // SAVE PREVIOUS BOARD IN CASE OF A WRONG MOVE
+                for(int tempRow = 0; tempRow < nrOfFields; tempRow++){
+                    for(int tempCol = 0; tempCol < nrOfFields; tempCol++){
+                        oldPawnsBoard[tempRow][tempCol] = pawnsBoard[tempRow][tempCol];
+                    }
+                }
+
+                // Make a move
                 pawnsBoard = legalMoves[i].makeMove(pawnsBoard);
                 doneMoves.add(new Movement(legalMoves[i].getFromRow(), legalMoves[i].getFromCol(), legalMoves[i].getToRow(), legalMoves[i].getToCol()));
 
                 if (legalMoves[i].isJump()) {
-                    legalMoves = legalMovesObj.getLegalJumpsFrom(legalMoves[i].getToRow(), legalMoves[i].getToCol(), realPlayer, pawnsBoard);
+                    legalMoves = legalMovesObj.getLegalJumpsFrom(legalMoves[i].getToRow(), legalMoves[i].getToCol(), currentPlayer, pawnsBoard);
 
                     if (legalMoves != null) {
                         if (pawnsBoard[row][col].getColor() == Color.WHITE) {
@@ -219,17 +190,7 @@ public class Game extends Canvas  implements Runnable {
                 selectedRow = -1;
 
                 String message;
-                if (doneMoves.size() == 1) {
-                    message = "";
-                    for (int j = 0; j < doneMoves.size(); j++) {
-                        message = message + doneMoves.size() + " move"
-                                + " " + doneMoves.get(j).getFromRow()
-                                + " " + doneMoves.get(j).getFromCol()
-                                + " " + doneMoves.get(j).getToRow()
-                                + " " + doneMoves.get(j).getToCol();
-                    }
-                    send(message);
-                } else if (doneMoves.size() > 1) {
+                if (doneMoves.size() > 0) {
                     message = "";
                     for (int j = 0; j < doneMoves.size(); j++) {
                         message += doneMoves.size() + " move"
@@ -237,141 +198,65 @@ public class Game extends Canvas  implements Runnable {
                                 + " " + doneMoves.get(j).getFromCol()
                                 + " " + doneMoves.get(j).getToRow()
                                 + " " + doneMoves.get(j).getToCol();
-                        if(j != doneMoves.size()-1 ){
+                        if((doneMoves.size() != 1) && (j != doneMoves.size()-1)){
                             message += " ";
                         }
                     }
-                    send(message);
+
+                    if(!gameController.send(message)){
+                        pawnsBoard = oldPawnsBoard;
+                        oldPawnsBoard = new Pawn[fieldSize][fieldSize];
+                        doneMoves.clear();
+                    }
                 }
+
                 return;
             }
         }
         setPROMPT("Naciśnij gdzie chcesz się ruszyć");
     }
 
-    /**
-     * Method to send a message to the server.
-     * @param string message
-     */
-    private void send(String string){
-        output.println(string);
-        setPROMPT("Ruch przeciwnika");
-        turnMade = ACTIVE;
+    public void makeRecievedMove(boolean finishedAllMoves,Movement move){
+        pawnsBoard = move.makeMove(pawnsBoard);
+        setTurnMade(NONACTIVE);
+        legalMoves = legalMovesObj.getLegalMoves(currentPlayer,pawnsBoard);
+        if(finishedAllMoves){
+            doneMoves = new ArrayList<>();
+        }
+    }
+    public void rewindBoard(){
+        pawnsBoard = oldPawnsBoard;
+    }
+
+    public int getTurnMade() {
+        return turnMade;
+    }
+
+    public void setTurnMade(int turnState) {
+        turnMade = turnState;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void setCurrentPlayer(Player player){
+        this.currentPlayer = player;
+    }
+    public void gameSetup(Player player){
         currentPlayer = player;
-        drawBoard();
-    }
-
-    /**
-     * Connection to the socket.
-     */
-    private void listenSocket() {
-        try {
-            socket = new Socket("localhost", 4444);
-            // Inicjalizacja wysylania do serwera
-            output = new PrintWriter(socket.getOutputStream(), true);
-            // Inicjalizacja odbierania z serwera
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown host: localhost");
-            System.exit(1);
-        } catch (IOException e) {
-            System.out.println("No I/O");
-            System.exit(1);
-        }
-    }
-    /**
-     * Initializing client. Settling which socket is which client.
-     */
-    private void receiveInitFromServer() {
-        try {
-            int in = Integer.parseInt(input.readLine());
-            System.out.println(in);
-            if (in == PLAYER1) {
-                setPROMPT("Mój ruch");
-                player = PLAYER1;
-                turnMade = NONACTIVE;
-                realPlayer = new Player(8, true);
-            } else {
-                setPROMPT("Ruch przeciwnika");
-                player = PLAYER2;
-                realPlayer = new Player(8, false);
-            }
-            doneMoves = new ArrayList<>();
-        } catch (IOException e) {
-            System.out.println("Read failed");
-            System.exit(1);
-        }
-    }
-
-    /**
-     * Method to receive commands from server.
-     */
-    public void receiveCommand(){
-        try {
-            // Reciving from server.
-            String str = input.readLine();
-            System.out.println(str);
-
-            String [] command = str.split(" ");
-
-            // Received command "nrOfMoves move fromRow fromCol toRow toCol"
-            int nrOfWords = str.split("\\w+").length;
-            System.out.println(nrOfWords + " slowa");
-
-            if(nrOfWords % 6 == 0 ){
-                int nrOfMoves = Integer.parseInt(command[0]);
-
-                for(int i = 0; i < nrOfMoves; i++){
-                    int fromRow = Integer.parseInt(command[2 + (i*6)]);
-                    int fromCol = Integer.parseInt(command[3 + (i*6)]);
-                    int toRow = Integer.parseInt(command[4 + (i*6)]);
-                    int toCol = Integer.parseInt(command[5 + (i*6)]);
-                    Movement move = new Movement(fromRow, fromCol, toRow, toCol);
-                    pawnsBoard = move.makeMove(pawnsBoard);
-                    turnMade = NONACTIVE;
-                    legalMoves = legalMovesObj.getLegalMoves(realPlayer, pawnsBoard);
-                    drawBoard();
-                }
-            }
-            doneMoves = new ArrayList<>();
-            Platform.runLater(()->setPROMPT("Mój ruch"));
-        }
-        catch (IOException e) {
-            System.out.println("Read failed"); System.exit(1);}
+        legalMovesObj = new LegalMoves(nrOfFields);
+        legalMoves = legalMovesObj.getLegalMoves(currentPlayer, pawnsBoard);
+        doneMoves = new ArrayList<>();
     }
 
     /**
      * Method to set prompt message on the window.
      * @param message message
      */
-    private void setPROMPT(String message) {
+    public void setPROMPT(String message) {
         messagePROMT.setText(message);
         System.out.println(message);
     }
 
-    /**
-     * Thread method.
-     * @param iPlayer player which thread is run for
-     */
-    private void threadFunction(int iPlayer){
-        while(true) {
-            synchronized (this) {
-                if (currentPlayer == iPlayer) {
-                    try {
-                        wait(10);
-                    } catch (InterruptedException e) {
-                    }
-                }
-                if (turnMade == ACTIVE){
-                    receiveCommand();
-                }
-                notifyAll();
-            }
-        }
-    }
-
-    @Override
-    public void run() {
-        threadFunction(player);
-    }
 }
