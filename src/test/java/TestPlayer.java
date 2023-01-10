@@ -4,6 +4,9 @@ import org.junit.Assert;
 
 public class TestPlayer {
 
+    /**
+     * Test for Player class method  set Color.
+     */
     @org.junit.Test
     public void testSetPlayerColor() {
 
@@ -15,6 +18,10 @@ public class TestPlayer {
         Color color2 = player2.getColor();
         Assert.assertEquals(color2, Color.BLACK);
     }
+
+    /**
+     * Test for Player Constructor.
+     */
     @org.junit.Test
     public void testConstructor() {
         try {

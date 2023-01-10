@@ -18,14 +18,14 @@ public class TestLegalMoves {
      * Set up board with no pawns, number of fields and player with Black pawns.
      */
     @Before
-    public void setUp(){
+    public void setUp() {
         nrOfFields = 8;
         version = "Hiszpanska";
         pawnsBoard =  new Pawn[nrOfFields][nrOfFields];
         player = new Player(nrOfFields, false);
         legalMovesObj = new LegalMoves(nrOfFields);
-        for(int i = 0; i < nrOfFields ; i++){
-            for(int j = 0; j < nrOfFields ; j++){
+        for(int i = 0; i < nrOfFields ; i++) {
+            for(int j = 0; j < nrOfFields ; j++) {
                 pawnsBoard[i][j] = new Pawn(Color.TRANSPARENT, i, j);
                 pawnsBoard[i][j].setState(PawnState.EMPTY);
             }
@@ -107,17 +107,12 @@ public class TestLegalMoves {
         pawnsBoard[0][0].setState(PawnState.KING);
         pawnsBoard[0][0].setColor(Color.BLACK);
         pawnsBoard[2][2].setState(PawnState.NORMAL);
-        pawnsBoard[2][2].setColor(Color.BLACK);
-        pawnsBoard[3][1].setState(PawnState.NORMAL);
-        pawnsBoard[3][1].setColor(Color.WHITE);
+        pawnsBoard[2][2].setColor(Color.WHITE);
         pawnsBoard[3][3].setState(PawnState.NORMAL);
-        pawnsBoard[3][3].setColor(Color.WHITE);
+        pawnsBoard[3][3].setColor(Color.BLACK);
 
         legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
-        Assert.assertEquals(legalMoves[0].getToCol(), 1);
-        Assert.assertEquals(legalMoves[0].getToRow(), 1);
-        System.out.println("Legalne ruchy" + legalMoves.length);
-        Assert.assertEquals(legalMoves.length, 1);
+        Assert.assertEquals(legalMoves.length, 3);
     }
 
     /**
@@ -163,13 +158,84 @@ public class TestLegalMoves {
         pawnsBoard[2][2].setState(PawnState.NORMAL);
         pawnsBoard[2][2].setColor(Color.BLACK);
         legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
-        // In Hiszpanska version we can not beat back, so we only have 2 moves forward.
-        if(version == "Hiszpanska") {
+        // In Hiszpańska and Włoska version we can not beat back, so we only have 2 moves forward.
+        if(Objects.equals(version, "Hiszpanska") || Objects.equals(version, "Włoska")) {
             Assert.assertEquals(legalMoves.length, 2);
         }
-
+        if(Objects.equals(version, "Niemiecka")) {
+            Assert.assertEquals(legalMoves.length, 3);
+        }
     }
 
+    /**
+     * 6. Tests if the best beat up is chosen for different situations.
+     */
+    @Test
+    public void legalMoveTestChoseBestBeatUp() {
+        pawnsBoard[2][2].setState(PawnState.NORMAL);
+        pawnsBoard[2][2].setColor(Color.BLACK);
+        pawnsBoard[3][3].setState(PawnState.NORMAL);
+        pawnsBoard[3][3].setColor(Color.WHITE);
+        pawnsBoard[3][1].setState(PawnState.NORMAL);
+        pawnsBoard[3][1].setColor(Color.WHITE);
+        pawnsBoard[5][5].setState(PawnState.NORMAL);
+        pawnsBoard[5][5].setColor(Color.WHITE);
+        legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
 
+        Assert.assertEquals(legalMoves.length, 1);
+        Assert.assertEquals(legalMoves[0].getToRow(), 4);
+        Assert.assertEquals(legalMoves[0].getToCol(), 4);
+    }
 
+    @Test
+    public void legalMoveTestChoseBestBeatUp2() {
+        pawnsBoard[7][7].setState(PawnState.KING);
+        pawnsBoard[7][7].setColor(Color.BLACK);
+        pawnsBoard[6][2].setState(PawnState.NORMAL);
+        pawnsBoard[6][2].setColor(Color.WHITE);
+        pawnsBoard[4][4].setState(PawnState.NORMAL);
+        pawnsBoard[4][4].setColor(Color.WHITE);
+        pawnsBoard[3][5].setState(PawnState.NORMAL);
+        pawnsBoard[3][5].setColor(Color.BLACK);
+        legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
+
+        Assert.assertEquals(legalMoves.length, 1);
+        Assert.assertEquals(legalMoves[0].getToRow(), 5);
+        Assert.assertEquals(legalMoves[0].getToCol(), 3);
+    }
+
+    @Test
+    public void legalMoveTestChoseBestBeatUp3() {
+        pawnsBoard[3][3].setState(PawnState.NORMAL);
+        pawnsBoard[3][3].setColor(Color.BLACK);
+        pawnsBoard[4][2].setState(PawnState.NORMAL);
+        pawnsBoard[4][2].setColor(Color.WHITE);
+        pawnsBoard[4][4].setState(PawnState.KING);
+        pawnsBoard[4][4].setColor(Color.WHITE);
+        legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
+
+        Assert.assertEquals(legalMoves.length, 1);
+        Assert.assertEquals(legalMoves[0].getToRow(), 5);
+        Assert.assertEquals(legalMoves[0].getToCol(), 5);
+    }
+
+    @Test
+    public void legalMoveTestChoseBestBeatUp4() {
+        pawnsBoard[2][3].setState(PawnState.NORMAL);
+        pawnsBoard[2][3].setColor(Color.BLACK);
+        pawnsBoard[3][2].setState(PawnState.NORMAL);
+        pawnsBoard[3][2].setColor(Color.WHITE);
+        pawnsBoard[3][4].setState(PawnState.NORMAL);
+        pawnsBoard[3][4].setColor(Color.WHITE);
+        pawnsBoard[5][2].setState(PawnState.NORMAL);
+        pawnsBoard[5][2].setColor(Color.WHITE);
+        pawnsBoard[5][6].setState(PawnState.KING);
+        pawnsBoard[5][6].setColor(Color.WHITE);
+
+        legalMoves = legalMovesObj.getLegalMoves(player, pawnsBoard);
+
+        Assert.assertEquals(legalMoves.length, 1);
+        Assert.assertEquals(legalMoves[0].getToRow(), 4);
+        Assert.assertEquals(legalMoves[0].getToCol(), 5);
+    }
 }

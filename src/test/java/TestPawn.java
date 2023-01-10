@@ -1,11 +1,13 @@
 import javafx.scene.paint.Color;
 import org.example.Pawn;
 import org.example.PawnState;
-import org.example.Player;
 import org.junit.Assert;
 
 public class TestPawn {
 
+    /**
+     * Test to check if method set state is correct for Pawn class.
+     */
     @org.junit.Test
     public void testPawnSetState() {
         //Create empty pawn
@@ -19,6 +21,9 @@ public class TestPawn {
         Assert.assertEquals(pawn2.getState(), pawn1.getState());
     }
 
+    /**
+     * Test to check if method set color is correct for Pawn class.
+     */
     @org.junit.Test
     public void testPawnSetColor() {
         //Create empty pawn

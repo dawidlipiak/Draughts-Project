@@ -11,14 +11,13 @@ public class TestMovement {
     private Pawn[][] pawnsBoard;
     private Pawn[][] pawnsBoard2;
 
-
     @Before
     public void setUp(){
         nrOfFields = 8;
         pawnsBoard =  new Pawn[nrOfFields][nrOfFields];
         pawnsBoard2 =  new Pawn[nrOfFields][nrOfFields];
-        for(int i = 0; i < nrOfFields ; i++){
-            for(int j = 0; j < nrOfFields ; j++){
+        for(int i = 0; i < nrOfFields ; i++) {
+            for(int j = 0; j < nrOfFields ; j++) {
                 pawnsBoard[i][j] = new Pawn(Color.TRANSPARENT, i, j);
                 pawnsBoard[i][j].setState(PawnState.EMPTY);
                 pawnsBoard2[i][j] = new Pawn(Color.TRANSPARENT, i, j);
@@ -38,7 +37,7 @@ public class TestMovement {
         pawnsBoard2[2][2].setColor(Color.BLACK);
         Movement movement = new Movement(1,1,2,2);
         movement.makeMove(pawnsBoard);
-        for(int i = 0; i < nrOfFields ; i++){
+        for(int i = 0; i < nrOfFields ; i++) {
             for(int j = 0; j < nrOfFields ; j++) {
                 Assert.assertEquals(pawnsBoard[i][j].getColor(), pawnsBoard2[i][j].getColor());
                 Assert.assertEquals(pawnsBoard[i][j].getState(), pawnsBoard2[i][j].getState());
@@ -56,9 +55,6 @@ public class TestMovement {
         Movement movement = new Movement(1,1,3,3);
         movement.makeMove(pawnsBoard);
         boolean isJump = movement.isJump();
-        Assert.assertEquals(isJump, true);
-
+        Assert.assertTrue(isJump);
     }
-
-
 }
