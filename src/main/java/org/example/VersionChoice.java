@@ -14,7 +14,7 @@ import javafx.event.EventHandler;
  * Class to choice the version of the game
  */
 public class VersionChoice {
-    private final Stage stage, stageItalian, stageGerman, stageSpanish;
+    private final Stage versionStage, gameStage;
     private String chosenVersion;
     private final Button buttonItalian;
     private final Button buttonSpanish;
@@ -23,15 +23,11 @@ public class VersionChoice {
 
     /**
      * Contructor of a class allowing to choose version of the game
-     * @param stage1 italian game stage
-     * @param stage2 spanish game stage
-     * @param stage3 german game stage
+     * @param stage italian game stage
      */
-    public VersionChoice(Stage stage1, Stage stage2, Stage stage3){
-        stage = new Stage();
-        this.stageItalian = stage1;
-        this.stageSpanish = stage2;
-        this.stageGerman = stage3;
+    public VersionChoice(Stage stage){
+        this.versionStage = new Stage();
+        this.gameStage = stage;
 
         buttonItalian = new Button("Włoska");
         buttonSpanish = new Button("Hiszpańska");
@@ -55,9 +51,9 @@ public class VersionChoice {
         vbox.alignmentProperty().set(Pos.CENTER);
         vbox.setSpacing(12);
         Scene scene = new Scene(vbox, 280, 450);
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+        versionStage.setScene(scene);
+        versionStage.setResizable(false);
+        versionStage.show();
     }
 
     /**
@@ -69,13 +65,13 @@ public class VersionChoice {
             public void handle(ActionEvent event) {
                 Button button = (Button) event.getSource();
                 if (button.getText().equals("Włoska")) {
-                    setVersion("Włoska", stageItalian);
+                    setVersion("Włoska");
                 }
                 if (button.getText().equals("Niemiecka")) {
-                    setVersion("Niemiecka", stageGerman);
+                    setVersion("Niemiecka");
                 }
                 if (button.getText().equals("Hiszpańska")) {
-                    setVersion("Hiszpańska", stageSpanish);
+                    setVersion("Hiszpańska");
                 }
                 if (button.getText().equals("Wyjście")) {
                     System.exit(0);
@@ -91,11 +87,10 @@ public class VersionChoice {
     /**
      * Function to show stage with picked version and hiding previous window
      * @param version version of the game
-     * @param selectedStage proper stage
      */
-    public void setVersion(String version, Stage selectedStage) {
-        selectedStage.show();
-        stage.hide();
+    public void setVersion(String version) {
+        gameStage.show();
+        versionStage.hide();
         chosenVersion = version;
     }
 

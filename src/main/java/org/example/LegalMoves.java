@@ -248,24 +248,25 @@ public class LegalMoves {
                 return false; // NO PIECES TO JUMP THROUGH
             }
 
-            // CHECK IF THE MOVE TO THE PLACE ONE BEFORE AN OPPONENT PAWN IS LEGAL
-            if(legalMove(player,pawnsBoard,fromRow,fromCol,beforeRows,beforeCols, betweenRows.get(i), betweenCols.get(i))){ // Pawn at i index position
-                // CHECK IF i INDEX IS NOT THE LAST ONE IN BETWEEN LIST
-                if(betweenRows.size() != i+1) {
-                    // CHECK IF THE PLACE AFTER THE PAWN IS EMPTY
-                    if (pawnsBoard[betweenRows.get(i + 1)][betweenCols.get(i + 1)].getState() != PawnState.EMPTY) {
-                        return false;
-                    }
-                    else {
-                        ArrayList<Integer> afterRows = new ArrayList<>();
-                        ArrayList<Integer> afterCols = new ArrayList<>();
-                        for(int j = i; j < betweenRows.size(); j++){
-                            afterRows.add(betweenRows.get(j));
-                            afterCols.add(betweenCols.get(j));
-                        }
-                        // CHECK IF THE MOVE FROM BEHIND THE PAWN TO (toRow,toCol) IS LEGAL
-                        if(!legalMove(player,pawnsBoard,betweenRows.get(i),betweenCols.get(i),afterRows,afterCols,toRow,toCol)) {
+            if(i != 0) {
+                // CHECK IF THE MOVE TO THE PLACE ONE BEFORE AN OPPONENT PAWN IS LEGAL
+                if (legalMove(player, pawnsBoard, fromRow, fromCol, beforeRows, beforeCols, betweenRows.get(i - 1), betweenCols.get(i - 1))) { // Pawn at i index position
+                    // CHECK IF i INDEX IS NOT THE LAST ONE IN BETWEEN LIST
+                    if (betweenRows.size() != i + 1) {
+                        // CHECK IF THE PLACE AFTER THE PAWN IS EMPTY
+                        if (pawnsBoard[betweenRows.get(i + 1)][betweenCols.get(i + 1)].getState() != PawnState.EMPTY) {
                             return false;
+                        } else {
+                            ArrayList<Integer> afterRows = new ArrayList<>();
+                            ArrayList<Integer> afterCols = new ArrayList<>();
+                            for (int j = i+1; j < betweenRows.size(); j++) {
+                                afterRows.add(betweenRows.get(j));
+                                afterCols.add(betweenCols.get(j));
+                            }
+                            // CHECK IF THE MOVE FROM BEHIND THE PAWN TO (toRow,toCol) IS LEGAL
+                            if (!legalMove(player, pawnsBoard, betweenRows.get(i+1), betweenCols.get(i+1), afterRows, afterCols, toRow, toCol)) {
+                                return false;
+                            }
                         }
                     }
                 }
