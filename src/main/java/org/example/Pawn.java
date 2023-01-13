@@ -12,6 +12,8 @@ public class Pawn {
     /**
      * Constructor of a pawn.
      * @param color of pawn
+     * @param row row of the field in which this pawn is
+     * @param col column of the field in which this pawn is
      */
     public Pawn(Color color, int row, int col) {
         state = PawnState.NORMAL;
@@ -53,5 +55,4 @@ public class Pawn {
     public Color getColor() {
         return color;
     }
-
 }

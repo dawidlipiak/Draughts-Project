@@ -1,1 +1,2 @@
 # WarcabyProject
+![plot]DiagramPokazowy.png

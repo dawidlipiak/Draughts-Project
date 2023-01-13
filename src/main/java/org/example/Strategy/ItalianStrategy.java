@@ -95,7 +95,7 @@ public class ItalianStrategy implements MovesStrategy {
             return;
         }
         //In Italian version KING can't do jumps with distance more than 2
-        if (pawnsBoard[row][col].getState() == PawnState.KING && distance > 2) {
+        if (pawnsBoard[row][col].getState() == PawnState.QUEEN && distance > 2) {
             return;
         }
 
@@ -184,7 +184,7 @@ public class ItalianStrategy implements MovesStrategy {
 
         //In Italian version Normal pawn can't beat up KING
         if (pawnsBoard[fromRow][fromCol].getState() == PawnState.NORMAL) {
-            if (pawnsBoard[betweenRows.get(0)][betweenCols.get(0)].getState() == PawnState.KING) {
+            if (pawnsBoard[betweenRows.get(0)][betweenCols.get(0)].getState() == PawnState.QUEEN) {
                 return false;
             }
         }
@@ -296,7 +296,7 @@ public class ItalianStrategy implements MovesStrategy {
                 betweenCols.clear();
             }
         };
-        if (((pawnsBoard[row][col].getState() == PawnState.KING) || (pawnsBoard[row][col].getState() == PawnState.NORMAL)) && (distance == 1)) {
+        if (((pawnsBoard[row][col].getState() == PawnState.QUEEN) || (pawnsBoard[row][col].getState() == PawnState.NORMAL)) && (distance == 1)) {
 
             function.checkAndAdd(0);  // MOVE DOWN RIGHT
 

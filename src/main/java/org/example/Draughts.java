@@ -3,9 +3,14 @@ package org.example;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -35,37 +40,35 @@ public class Draughts extends Application {
                 messagePROMPT.setTextFill( Color.BLACK );
                 messagePROMPT.setFont(Font.font(null, FontWeight.BOLD, 25));
 
-                // Create the buttons to start new game and to surrender.
-                Button newGameButton = new Button("Nowa gra");
-                newGameButton.setDisable(true);
-                Button resignButton = new Button("Poddaj się");
-                newGameButton.setFont(Font.font(15));
-                resignButton.setFont(Font.font(15));
+                Pane frame = new Pane();
 
                 //Create new game.
                 GameController gameController = new GameController(boardsize, messagePROMPT,stage);
                 gameController.setOnMousePressed(gameController::mousePressed);
 
-                Pane frame = new Pane();
+
 
                 //Set content of the Pane in accurate places.
+                Line line = new Line(0,71,boardsize,71);
                 gameController.relocate(0,75);
                 messagePROMPT.relocate(5,15 );
-                newGameButton.relocate(400, 20);
-                resignButton.relocate(500,20);
+
+                line.setStrokeWidth(8);
+                line.setStroke(Color.BROWN);
 
                 //Add content to the Pane.
-                frame.getChildren().addAll(gameController,messagePROMPT,newGameButton, resignButton);
+                frame.getChildren().addAll(gameController,messagePROMPT,line);
+                frame.setBackground(new Background(new BackgroundFill(Color.PEACHPUFF,null,null)));
 
                 // Create a scene.
-                Scene scene = new Scene(frame,boardsize, boardsize+75);
+                Scene scene = new Scene(frame,boardsize, boardsize+75, Color.MOCCASIN);
                 // Set non-resizable window and title for window
                 stage.setResizable(false);
                 stage.setTitle("Warcaby");
 
                 // Place in scene in the stage.
                 stage.setScene(scene);
-                stage.show();
+
 
         }
 }

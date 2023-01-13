@@ -1,17 +1,17 @@
 package org.example;
 
-import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.example.Strategy.MovesStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to create the hole game.
+ * Model representation in MVC pattern responsible for running the game and making changes passed by controller.
  */
 public class Game {
     Canvas gameView;
@@ -25,14 +25,18 @@ public class Game {
     private final Label messagePROMT;
     private Movement[] legalMoves;
     private List <Movement> doneMoves;
-    private LegalMoves legalMovesObj;
     public final static int ACTIVE = 0;
     public final static int NONACTIVE = 1;
     private static int turnMade = ACTIVE;
+    private MovesStrategy strategy;
+
     /**
-     * Constructor of a play board for draughts
-     * @param numberOfFields number of Fields in a row and column
-     * @param boardSize size of a window
+     * * Constructor of a play board for draughtsw
+     * @param gameView Canvas on which the game is showed to user
+     * @param numberOfFields number of fields in one direction
+     * @param boardSize size of the window
+     * @param message Label on which there are showed to user information about the game
+     * @param gameController controller from which we're using send method to send made moves
      */
     public Game(Canvas gameView,int numberOfFields, int boardSize, Label message, GameController gameController){
         this.gameView = gameView;
@@ -76,7 +80,7 @@ public class Game {
                         g.fillOval(col * fieldSize + 7.5, row * fieldSize + 7.5, 60, 60);
                         break;
 
-                    case KING:
+                    case QUEEN:
                         if (pawn.getColor() == Color.WHITE) {
                             g.setFill(Color.WHITE);
                         } else {
@@ -90,7 +94,7 @@ public class Game {
             }
         }
         //Add framing for the pawns to show possible moves.
-        if(turnMade == NONACTIVE) {
+        if(turnMade == NONACTIVE && legalMoves != null) {
             g.setStroke(Color.BROWN);
             g.setLineWidth(4);
             for (int i = 0; i < legalMoves.length; i++) {
@@ -110,6 +114,7 @@ public class Game {
             }
         }
     }
+
     /**
      * Method to set starting positions of the pawns.
      */
@@ -137,23 +142,21 @@ public class Game {
     }
 
     /**
-     * Method to hold turn of the game.
-     * @param row row
-     * @param col column
+     * Method handling user's actions on the board.
+     * @param row row which is clicked by user
+     * @param col column which is clicked by a user
      */
     public void playerTurn(int row, int col) {
-
         // If the player clicked on one of the pawns that the player can move, mark this row and col as selected and return.
-        if(legalMoves != null) {
-            for (int i = 0; i < legalMoves.length; i++) {
-                if (legalMoves[i].moveCheckerFrom(row, col)) {
-                    selectedRow = row;
-                    selectedCol = col;
-                    drawBoard();
-                    return;
-                }
+        for (int i = 0; i < legalMoves.length; i++) {
+            if (legalMoves[i].moveCheckerFrom(row, col)) {
+                selectedRow = row;
+                selectedCol = col;
+                drawBoard();
+                return;
             }
         }
+
         // If no pawn has been selected to be moved, the user must first select a pawn.
         if (selectedRow < 0) {
             setPROMPT("Naciśnij pionka którym chcesz ruszyć");
@@ -175,7 +178,7 @@ public class Game {
                 doneMoves.add(new Movement(legalMoves[i].getFromRow(), legalMoves[i].getFromCol(), legalMoves[i].getToRow(), legalMoves[i].getToCol()));
 
                 if (legalMoves[i].isJump()) {
-                    legalMoves = legalMovesObj.getLegalJumpsFrom(legalMoves[i].getToRow(), legalMoves[i].getToCol(), currentPlayer, pawnsBoard);
+                    legalMoves = strategy.getLegalJumpsFrom(legalMoves[i].getToRow(), legalMoves[i].getToCol(), currentPlayer, pawnsBoard);
 
                     if (legalMoves != null) {
                         if (pawnsBoard[row][col].getColor() == Color.WHITE) {
@@ -187,8 +190,10 @@ public class Game {
                         return;
                     }
                 }
+                // When user doesn't select a piece to move set selectedRow to -1
                 selectedRow = -1;
 
+                // if there are any done moves send them to the server
                 String message;
                 if (doneMoves.size() > 0) {
                     message = "";
@@ -202,7 +207,10 @@ public class Game {
                             message += " ";
                         }
                     }
-
+                    if(isGameOver()){
+                        message += " game over";
+                    }
+                    // If the server returns to the GameController the move was wrong return board to the state before the move
                     if(!gameController.send(message)){
                         pawnsBoard = oldPawnsBoard;
                         oldPawnsBoard = new Pawn[fieldSize][fieldSize];
@@ -216,47 +224,91 @@ public class Game {
         setPROMPT("Naciśnij gdzie chcesz się ruszyć");
     }
 
-    public void makeRecievedMove(boolean finishedAllMoves,Movement move){
+    // Do on the player's board done moves from his opponent.
+    public void makeReceivedMove(boolean finishedAllMoves, Movement move){
         pawnsBoard = move.makeMove(pawnsBoard);
         setTurnMade(NONACTIVE);
-        legalMoves = legalMovesObj.getLegalMoves(currentPlayer,pawnsBoard);
+        legalMoves = strategy.getLegalMoves(currentPlayer,pawnsBoard);
         if(finishedAllMoves){
             doneMoves = new ArrayList<>();
         }
     }
+
+    /**
+     * Method returning player's board to previous state before his wrong move.
+     */
     public void rewindBoard(){
         pawnsBoard = oldPawnsBoard;
     }
 
+    /**
+     * Get the status of a player's turn.
+     * @return ACTIVE = 0 if a player has done some move or NONACTIVE = 1 if the move isn't done yet
+     */
     public int getTurnMade() {
         return turnMade;
     }
 
+    /**
+     * Set the status of a player's turn.
+     * @param turnState 0 if the turn is done, 1 if the turn isn't done yet
+     */
     public void setTurnMade(int turnState) {
         turnMade = turnState;
     }
 
+    /**
+     * Get which player's turn is it.
+     * @return player which now is the turn.
+     */
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
 
+    /**
+     * Set which player's turn is it
+     * @param player which turn now it will be
+     */
     public void setCurrentPlayer(Player player){
         this.currentPlayer = player;
     }
+
+    /**
+     * Pre-game setup after initial data received from the server.
+     * @param player which will begin the game
+     */
     public void gameSetup(Player player){
         currentPlayer = player;
-        legalMovesObj = new LegalMoves(nrOfFields);
-        legalMoves = legalMovesObj.getLegalMoves(currentPlayer, pawnsBoard);
+        legalMoves = strategy.getLegalMoves(currentPlayer, pawnsBoard);
         doneMoves = new ArrayList<>();
     }
 
     /**
-     * Method to set prompt message on the window.
+     * Method setting prompter showing a message from the game on the window.
      * @param message message
      */
     public void setPROMPT(String message) {
         messagePROMT.setText(message);
         System.out.println(message);
+    }
+
+    /**
+     * Set the chosen strategy for the game.
+     * @param strategy which was selected
+     */
+    public void setStrategy(MovesStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    private boolean isGameOver (){
+        Movement [] opponentLegalMoves;
+        if(currentPlayer.isFirstPlayer()){
+            opponentLegalMoves = strategy.getLegalMoves(new Player(8, false),pawnsBoard);
+        }
+        else {
+            opponentLegalMoves = strategy.getLegalMoves(new Player(8, true),pawnsBoard);
+        }
+        return (opponentLegalMoves == null);
     }
 
 }

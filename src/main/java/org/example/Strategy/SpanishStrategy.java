@@ -284,7 +284,7 @@ public class SpanishStrategy implements MovesStrategy {
                 betweenCols.clear();
             }
         };
-        if (pawnsBoard[row][col].getState() == PawnState.KING || ((pawnsBoard[row][col].getState() == PawnState.NORMAL) && (distance == 1))) {
+        if (pawnsBoard[row][col].getState() == PawnState.QUEEN || ((pawnsBoard[row][col].getState() == PawnState.NORMAL) && (distance == 1))) {
 
             function.checkAndAdd(0);  // MOVE DOWN RIGHT
 

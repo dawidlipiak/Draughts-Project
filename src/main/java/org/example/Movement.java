@@ -13,7 +13,13 @@ public class Movement {
     // State if the move was a jump
     boolean isJump = false;
 
-    // Constructor.  Just set the values of the instance variables.
+    /**
+     * Constructor. Just set the values of the instance variables.
+     * @param row1 from row
+     * @param col1 from column
+     * @param row2 to row
+     * @param col2 to column
+     */
     public Movement(int row1, int col1, int row2, int col2) {
         fromRow = row1;
         fromCol = col1;
@@ -23,6 +29,7 @@ public class Movement {
     }
     /**
      * Method to test if this move is jump.
+     * @return true when it was a jump, otherwise false.
      */
     public boolean isJump() {
         return isJump;
@@ -68,10 +75,10 @@ public class Movement {
         pawnsBoard[fromRow][fromCol] = tempPawn;
 
         if (toRow == 0 && pawnsBoard[toRow][toCol].getColor() == Color.WHITE){
-            pawnsBoard[toRow][toCol].setState(PawnState.KING);
+            pawnsBoard[toRow][toCol].setState(PawnState.QUEEN);
         }
         if (toRow == 7 && pawnsBoard[toRow][toCol].getColor() == Color.BLACK) {
-            pawnsBoard[toRow][toCol].setState(PawnState.KING);
+            pawnsBoard[toRow][toCol].setState(PawnState.QUEEN);
         }
 
         int rowDirection = 1; // MOVE DOWN

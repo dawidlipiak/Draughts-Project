@@ -13,9 +13,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Game controller class for handling actions from the user
+ */
 public class GameController extends Canvas implements Runnable{
-    Thread thread;
-    Game game;
+    private final Game game;
+    private final Stage gameStage;
     private final static int nrOfFields = 8;
     private final int fieldSize;
     private Player player;
@@ -24,26 +27,28 @@ public class GameController extends Canvas implements Runnable{
     private PrintWriter output;
     private BufferedReader input;
 
-
+    /**
+     * Constructor of a game controller setting beginning variables
+     * @param boardSize size of a playing board
+     * @param message Label which will be prompter for messages for a user
+     * @param gameStage stage on which the game is played
+     */
     public GameController(int boardSize, Label message, Stage gameStage){
         super(boardSize,boardSize);
         this.fieldSize = boardSize/nrOfFields;
+        this.gameStage = gameStage;
         listenSocket();
 
         game = new Game(this, nrOfFields, boardSize, message, this);
         receiveInitFromServer();
-
         Platform.runLater(game::drawBoard);
     }
 
     /**
-     * Event handler for Mouse Pressed on the board.
-     * @param evt
+     * Event handler for mouse being pressed by a user on the board.
+     * @param evt mouse event
      */
     public void mousePressed(MouseEvent evt) {
-//        if (gameInProgress == false)
-//            sendMessage("Click \"New Game\" to start a new game.");
-//        else {
         int col = (int)((evt.getX()) / fieldSize);
         int row = (int)((evt.getY()) / fieldSize);
         if (col >= 0 && col < nrOfFields && row >= 0 && row < nrOfFields) {
@@ -55,19 +60,28 @@ public class GameController extends Canvas implements Runnable{
 
     /**
      * Method to send a message to the server.
-     * @param string message
+     * @param string message being sent
      */
     public boolean send(String string){
         output.println(string);
+
         try{
+            // If the sent move was wrong server will return string "Wrong move"
             if(input.readLine().equals("Wrong move")) {
                 Platform.runLater(()->game.setPROMPT("Zły ruch. Zrób nowy ruch"));
                 game.rewindBoard();
                 Platform.runLater(game::drawBoard);
                 return false;
             }
+            // If the move was correct proceed
             else {
-                Platform.runLater(()->game.setPROMPT("Ruch przeciwnika"));
+                // If the player sent message contains "game over" set prompter message that he has win
+                if(string.contains("game over")) {
+                    Platform.runLater(() -> game.setPROMPT("Wygrałeś !"));
+                }
+                else {
+                    Platform.runLater(() -> game.setPROMPT("Ruch przeciwnika"));
+                }
                 game.setTurnMade(ACTIVE);
                 game.setCurrentPlayer(player);
                 Platform.runLater(game::drawBoard);
@@ -82,7 +96,7 @@ public class GameController extends Canvas implements Runnable{
     }
 
     /**
-     * Connection to the socket.
+     * Connect to the server socket and set output and input handlers
      */
     private void listenSocket() {
         try {
@@ -100,25 +114,39 @@ public class GameController extends Canvas implements Runnable{
         }
     }
     /**
-     * Initializing client. Settling which socket is which client.
+     * Method assigning which player is first or second. Shows the version choosing window for the first player
+     * and sends it to the server and parses it to the second player
      */
     private void receiveInitFromServer() {
         try {
             boolean playerAssign = Boolean.parseBoolean(input.readLine());
             System.out.println(playerAssign);
+            Version version = new Version(gameStage);
+            String versionName;
 
+            // First player
             if (playerAssign) {
+                version.showAndWait();
+                versionName = version.getChosenVersion();
+                game.setStrategy(version.getStrategy());
+                output.println(versionName);
                 output.println(nrOfFields);
                 Platform.runLater(()->game.setPROMPT("Mój ruch"));
                 player = new Player(nrOfFields,true);
                 game.setTurnMade(NONACTIVE);
                 game.gameSetup(player);
-            } else {
+            }
+            // Second player
+            else {
+                versionName = input.readLine();
+                version.setVersion(versionName);
+                game.setStrategy(version.getStrategy());
+                gameStage.show();
                 Platform.runLater(()->game.setPROMPT("Ruch przeciwnika"));
                 player = new Player(nrOfFields,false);
                 game.gameSetup(player);
             }
-            thread = new Thread(this);
+            Thread thread = new Thread(this);
             thread.start();
         } catch (IOException e) {
             System.out.println("Read failed");
@@ -141,30 +169,38 @@ public class GameController extends Canvas implements Runnable{
             int nrOfWords = str.split("\\w+").length;
             System.out.println(nrOfWords + " slowa");
 
-            if(nrOfWords % 6 == 0 ){
-                int nrOfMoves = Integer.parseInt(command[0]);
+            int nrOfMoves = Integer.parseInt(command[0]);
 
-                for(int i = 0; i < nrOfMoves; i++) {
-                    int fromRow = Integer.parseInt(command[2 + (i * 6)]);
-                    int fromCol = Integer.parseInt(command[3 + (i * 6)]);
-                    int toRow = Integer.parseInt(command[4 + (i * 6)]);
-                    int toCol = Integer.parseInt(command[5 + (i * 6)]);
-                    Movement move = new Movement(fromRow, fromCol, toRow, toCol);
+            for (int i = 0; i < nrOfMoves; i++) {
+                int fromRow = Integer.parseInt(command[2 + (i * 6)]);
+                int fromCol = Integer.parseInt(command[3 + (i * 6)]);
+                int toRow = Integer.parseInt(command[4 + (i * 6)]);
+                int toCol = Integer.parseInt(command[5 + (i * 6)]);
+                Movement move = new Movement(fromRow, fromCol, toRow, toCol);
 
-                    if(i+1 == nrOfMoves) {
-                        game.makeRecievedMove(true, move);
-                    }
-                    else {
-                        game.makeRecievedMove(false, move);
-                    }
-                    Platform.runLater(game::drawBoard);
+                if (i + 1 == nrOfMoves) {
+                    game.makeReceivedMove(true, move);
+                } else {
+                    game.makeReceivedMove(false, move);
                 }
+                Platform.runLater(game::drawBoard);
             }
-            Platform.runLater(()->game.setPROMPT("Mój ruch"));
+            // 2-word message is "Game over"
+            if(nrOfWords % 6 == 2){
+                Platform.runLater(()->game.setPROMPT("Przegrałeś !"));
+                return;
+            }
+
+            Platform.runLater(() -> game.setPROMPT("Mój ruch"));
         }
         catch (IOException e) {
             System.out.println("Read failed"); System.exit(1);}
     }
+
+    /**
+     * Function called by a thread for making a concrete player receive command from opponent.
+     * @param iPlayer player which turn has been now
+     */
     private void threadFunction(Player iPlayer){
         while(true) {
             synchronized (this) {
@@ -175,6 +211,7 @@ public class GameController extends Canvas implements Runnable{
                     }
                 }
                 if (game.getTurnMade() == ACTIVE){
+                    System.out.println("Otrzymaj komende " + player.isFirstPlayer() );
                     receiveCommand();
                 }
                 notifyAll();
@@ -182,8 +219,12 @@ public class GameController extends Canvas implements Runnable{
         }
     }
 
+    /**
+     * Thread run function
+     */
     @Override
     public void run() {
         threadFunction(player);
     }
+
 }
