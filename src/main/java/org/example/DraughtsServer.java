@@ -26,6 +26,7 @@ public class DraughtsServer {
         boolean moveCorrect;
         Player turn;
         Pawn[][] pawnsBoard;
+        Boolean soloMode;
 
         try(ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Listening on port " + PORT);
@@ -46,6 +47,8 @@ public class DraughtsServer {
 
                 String version = input1.readLine();
                 System.out.println(version);
+                int nrOfFields = Integer.parseInt(input1.readLine());
+                soloMode = Boolean.parseBoolean(input1.readLine());
 
                 Socket secondPlayer = serverSocket.accept();
                 System.out.println("Second client connected");
@@ -60,8 +63,8 @@ public class DraughtsServer {
 
                 output2.println("false");
                 output2.println(version);
+                output2.println(soloMode);
 
-                int nrOfFields = Integer.parseInt(input1.readLine());
                 pawnsBoard = new Pawn[nrOfFields][nrOfFields];
                 player1 = new Player(nrOfFields, true);
                 player2 = new Player(nrOfFields, false);

@@ -26,6 +26,7 @@ public class GameController extends Canvas implements Runnable{
     public final static int NONACTIVE = 1;
     private PrintWriter output;
     private BufferedReader input;
+    private boolean soloMode;
 
     /**
      * Constructor of a game controller setting beginning variables
@@ -52,8 +53,15 @@ public class GameController extends Canvas implements Runnable{
         int col = (int)((evt.getX()) / fieldSize);
         int row = (int)((evt.getY()) / fieldSize);
         if (col >= 0 && col < nrOfFields && row >= 0 && row < nrOfFields) {
-            if( game.getTurnMade() == NONACTIVE) {
-                game.playerTurn(row, col);
+            if(soloMode) {
+                if ((game.getTurnMade() == NONACTIVE) && (player.isFirstPlayer())) {
+                    game.playerTurn(row, col);
+                }
+            }
+            else{
+                if (game.getTurnMade() == NONACTIVE) {
+                    game.playerTurn(row, col);
+                }
             }
         }
     }
@@ -128,9 +136,11 @@ public class GameController extends Canvas implements Runnable{
             if (playerAssign) {
                 version.showAndWait();
                 versionName = version.getChosenVersion();
+                soloMode = version.isSoloMode();
                 game.setStrategy(version.getStrategy());
                 output.println(versionName);
                 output.println(nrOfFields);
+                output.println(soloMode);
                 Platform.runLater(()->game.setPROMPT("Mój ruch"));
                 player = new Player(nrOfFields,true);
                 game.setTurnMade(NONACTIVE);
@@ -139,10 +149,11 @@ public class GameController extends Canvas implements Runnable{
             // Second player
             else {
                 versionName = input.readLine();
+                soloMode = Boolean.parseBoolean(input.readLine());
                 version.setVersion(versionName);
                 game.setStrategy(version.getStrategy());
                 gameStage.show();
-                Platform.runLater(()->game.setPROMPT("Ruch przeciwnika"));
+                Platform.runLater(() -> game.setPROMPT("Ruch przeciwnika"));
                 player = new Player(nrOfFields,false);
                 game.gameSetup(player);
             }
@@ -183,15 +194,18 @@ public class GameController extends Canvas implements Runnable{
                 } else {
                     game.makeReceivedMove(false, move);
                 }
+
                 Platform.runLater(game::drawBoard);
             }
             // 2-word message is "Game over"
-            if(nrOfWords % 6 == 2){
-                Platform.runLater(()->game.setPROMPT("Przegrałeś !"));
+            if(nrOfWords % 6 == 2) {
+                Platform.runLater(() -> game.setPROMPT("Przegrałeś !"));
                 return;
             }
-
             Platform.runLater(() -> game.setPROMPT("Mój ruch"));
+            if(soloMode && !player.isFirstPlayer() && (game.getTurnMade() == NONACTIVE)){
+                game.botMove();
+            }
         }
         catch (IOException e) {
             System.out.println("Read failed"); System.exit(1);}

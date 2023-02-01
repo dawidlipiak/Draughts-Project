@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -26,8 +27,11 @@ public class Version extends Stage{
     private final Button buttonItalian;
     private final Button buttonSpanish;
     private final Button buttonGerman;
+    private final Button buttonSolo;
+    private final Button buttonDuo;
     private final Button exitButton;
     private MovesStrategy strategy;
+    private boolean soloMode = true;
 
     /**
      * Contructor of a class allowing to choose version of the game
@@ -39,6 +43,8 @@ public class Version extends Stage{
         buttonItalian = new Button("Włoska");
         buttonSpanish = new Button("Hiszpańska");
         buttonGerman = new Button("Niemiecka");
+        buttonSolo = new Button("Solo");
+        buttonDuo = new Button("Duo");
         exitButton = new Button("Wyjście");
 
         // Making text in buttons bigger and set colors
@@ -48,6 +54,10 @@ public class Version extends Stage{
         buttonGerman.setStyle("-fx-background-color: #FFDAA7; -fx-border-color:brown; -fx-border-width: 2 2 2 2; -fx-background-insets: 0; ");
         buttonSpanish.setFont(new Font(40));
         buttonSpanish.setStyle("-fx-background-color: #FFDAA7; -fx-border-color:brown; -fx-border-width: 2 2 2 2; -fx-background-insets: 0; ");
+        buttonSolo.setFont(new Font(25));
+        buttonSolo.setStyle("-fx-background-color: #FFDAA7; -fx-border-color:brown; -fx-border-width: 2 2 2 2; -fx-background-insets: 0; ");
+        buttonDuo.setFont(new Font(25));
+        buttonDuo.setStyle("-fx-background-color: #FFDAA7; -fx-border-color:brown; -fx-border-width: 2 2 2 2; -fx-background-insets: 0; ");
         exitButton.setFont(new Font(20));
         exitButton.setStyle("-fx-background-color: #FFDAA7; -fx-border-color:brown; -fx-border-width: 2 2 2 2; -fx-background-insets: 0; ");
 
@@ -61,19 +71,44 @@ public class Version extends Stage{
     public void setUp(){
         Text text = new Text("Wybierz wersje gry");
         text.setFont(new Font(30));
-        VBox vbox = new VBox(text, buttonItalian, buttonGerman, buttonSpanish, exitButton);
+        HBox modeButtons = new HBox(buttonSolo,buttonDuo);
+        modeButtons.setSpacing(20);
+        modeButtons.alignmentProperty().set(Pos.CENTER);
+        VBox vbox = new VBox(text, buttonItalian, buttonGerman, buttonSpanish, modeButtons, exitButton);
         vbox.alignmentProperty().set(Pos.CENTER);
         vbox.setSpacing(12);
         vbox.setBackground(new Background(new BackgroundFill(Color.PERU,null, null)));
-        Scene scene = new Scene(vbox, 280, 450);
+        Scene scene = new Scene(vbox, 280, 500);
         this.setScene(scene);
         this.setResizable(false);
+
     }
+    private void choosingGameMode (){
+        EventHandler<ActionEvent> buttonModeEventHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Button button = (Button) event.getSource();
+                if(button.getText().equals("Solo")){
+                    soloMode = true;
+                    System.out.println(soloMode);
+                }
+                if(button.getText().equals("Duo")){
+                    soloMode = false;
+                    System.out.println(soloMode);
+                }
+
+            }
+        };
+        buttonSolo.setOnAction(buttonModeEventHandler);
+        buttonDuo.setOnAction(buttonModeEventHandler);
+    }
+
 
     /**
      * Function to set version after clicking the button
      */
     public void choosingVersion() {
+        choosingGameMode();
         EventHandler<ActionEvent> buttonEventHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -116,6 +151,14 @@ public class Version extends Stage{
 
     public String getChosenVersion(){
         return chosenVersion;
+    }
+
+    /**
+     * Function to return which mode game will be played
+     * @return if the mode is set to solo or duo
+     */
+    public boolean isSoloMode() {
+        return soloMode;
     }
 
     /**

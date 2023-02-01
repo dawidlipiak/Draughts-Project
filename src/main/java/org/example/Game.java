@@ -1,5 +1,6 @@
 package org.example;
 
+import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -9,6 +10,7 @@ import org.example.Strategy.MovesStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Model representation in MVC pattern responsible for running the game and making changes passed by controller.
@@ -29,6 +31,8 @@ public class Game {
     public final static int NONACTIVE = 1;
     private static int turnMade = ACTIVE;
     private MovesStrategy strategy;
+    private boolean soloMode;
+    private Random random = new Random();
 
     /**
      * * Constructor of a play board for draughtsw
@@ -139,6 +143,22 @@ public class Game {
                 }
             }
         }
+    }
+
+    public void botMove(){
+        do {
+            try {
+                if((legalMoves != null)) {
+                    Thread.sleep(1000);
+                    int index = random.nextInt(legalMoves.length);
+                    Movement move = legalMoves[index];
+                    Platform.runLater(() -> playerTurn(move.getFromRow(), move.getFromCol()));
+                    Platform.runLater(() -> playerTurn(move.getToRow(), move.getToCol()));
+                }
+            }
+            catch (InterruptedException ignored){}
+        }
+        while((legalMoves != null) && (messagePROMT.getText().equals("Musisz kontynuować skok.")));
     }
 
     /**
@@ -298,6 +318,14 @@ public class Game {
      */
     public void setStrategy(MovesStrategy strategy) {
         this.strategy = strategy;
+    }
+
+    /**
+     * Set the mode in which game will be running
+     * @param mode boolean value is the mode set to solo
+     */
+    public void setSoloMode(boolean mode){
+        this.soloMode = mode;
     }
 
     private boolean isGameOver (){
